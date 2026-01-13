@@ -1,0 +1,4328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Quiz Application - 200 Questions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        /* Dark Mode - FIXED VISIBILITY ISSUES */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .header {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .quiz-section {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .controls-panel,
+        body.dark-mode .question-grid {
+            background: #2c2c54;
+            color: #e0e0e0;
+        }
+
+        /* FIXED: Dark mode title visibility */
+        body.dark-mode .title {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode controls title visibility */
+        body.dark-mode .controls-title,
+        body.dark-mode .grid-title {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode jump to question label visibility */
+        body.dark-mode .jump-to-question label {
+            color: #e0e0e0 !important;
+        }
+
+        /* FIXED: Dark mode question text visibility */
+        body.dark-mode .question-text {
+            color: #e0e0e0 !important;
+        }
+
+        body.dark-mode .answer-option {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .answer-option:hover:not(.disabled) {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        /* FIXED: Dark mode option labels (A, B, C, D, E) visibility */
+        body.dark-mode .option-label {
+            background: #706fd3 !important;
+            color: #ffffff !important;
+        }
+
+        /* FIXED: Dark mode correct/incorrect answer visibility */
+        body.dark-mode .answer-option.correct {
+            background: #4caf50 !important;
+            color: #ffffff !important;
+            border-color: #388e3c !important;
+        }
+
+        body.dark-mode .answer-option.incorrect {
+            background: #f44336 !important;
+            color: #ffffff !important;
+            border-color: #d32f2f !important;
+        }
+
+        body.dark-mode .answer-option.correct .option-label,
+        body.dark-mode .answer-option.incorrect .option-label {
+            background: rgba(255, 255, 255, 0.3) !important;
+            color: #ffffff !important;
+        }
+
+        /* FIXED: Dark mode correct answer mode visibility */
+        body.dark-mode .answer-option.correct-answer-mode {
+            background: #4caf50 !important;
+            color: #ffffff !important;
+            border: 2px solid #388e3c !important;
+            font-weight: 600;
+        }
+
+        body.dark-mode .answer-option.other-answer-mode {
+            background: #40407a !important;
+            color: #b0b0b0 !important;
+            border: 1px solid #706fd3 !important;
+            opacity: 0.7;
+        }
+
+        body.dark-mode .grid-item {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .grid-item:hover {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        /* Exam Mode Body Styles */
+        body.exam-mode {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        body.exam-mode.dark-mode {
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Container */
+        body.exam-mode .container {
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Header */
+        body.exam-mode .header {
+            background: #e8e8e8;
+            border-radius: 0;
+            margin-bottom: 0;
+            padding: 15px 20px;
+            box-shadow: none;
+            border-bottom: 1px solid #ddd;
+        }
+
+        body.exam-mode.dark-mode .header {
+            background: #2c2c54;
+            border-bottom: 1px solid #40407a;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Title */
+        body.exam-mode .title {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        body.exam-mode.dark-mode .title {
+            color: #e0e0e0;
+        }
+
+        .timer-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Timer Section */
+        body.exam-mode .timer-section {
+            gap: 20px;
+        }
+
+        .timer-settings {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .timer-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Exam Mode Timer Settings - Show in exam mode */
+        body.exam-mode .timer-settings {
+            display: flex;
+        }
+
+        /* NEW: Question Shuffle Settings for Exam Mode */
+        .question-shuffle-settings {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #fff3e0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #ff9800;
+            transition: all 0.3s ease;
+        }
+
+        .question-shuffle-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Show question shuffle settings only in exam mode */
+        body.exam-mode .question-shuffle-settings {
+            display: flex;
+        }
+
+        .question-count-settings {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #e3f2fd;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #2196f3;
+            transition: all 0.3s ease;
+        }
+
+        .question-count-settings.hidden {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Show question count settings only in exam mode */
+        body.exam-mode .question-count-settings {
+            display: flex;
+        }
+
+        .timer-input, .count-input {
+            width: 60px;
+            padding: 5px 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .timer-label, .count-label, .shuffle-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .timer-start-btn, .count-reset-btn, .shuffle-toggle-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .timer-start-btn:hover, .count-reset-btn:hover, .shuffle-toggle-btn:hover {
+            background: #218838;
+        }
+
+        .count-reset-btn {
+            background: #2196f3;
+        }
+
+        .count-reset-btn:hover {
+            background: #1976d2;
+        }
+
+        .shuffle-toggle-btn {
+            background: #ff9800;
+        }
+
+        .shuffle-toggle-btn:hover {
+            background: #f57c00;
+        }
+
+        .shuffle-toggle-btn.active {
+            background: #4caf50;
+        }
+
+        .shuffle-toggle-btn.active:hover {
+            background: #388e3c;
+        }
+
+        .timer {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 25px;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #d32f2f;
+            font-weight: 600;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Timer */
+        body.exam-mode .timer {
+            background: #ffcdd2;
+            border: 1px solid #f44336;
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: #d32f2f;
+            font-size: 14px;
+        }
+
+        .timer.active {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        /* Exam Mode Active Timer */
+        body.exam-mode .timer.active {
+            background: #ffcdd2;
+            border-color: #f44336;
+            color: #d32f2f;
+        }
+
+        /* NEW: Question Shuffle Display */
+        .question-shuffle-display {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            border-radius: 8px;
+            padding: 8px 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #e65100;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        body.exam-mode .question-shuffle-display {
+            display: flex;
+        }
+
+        .question-shuffle-display.active {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        /* NEW: Question Count Display */
+        .question-count-display {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 8px 15px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #1565c0;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        body.exam-mode .question-count-display {
+            display: flex;
+        }
+
+        .timer-reset-btn, .shuffle-reset-btn, .count-reset-display-btn {
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .timer-reset-btn.visible,
+        .shuffle-reset-btn.visible,
+        .count-reset-display-btn.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .timer-reset-btn:hover,
+        .shuffle-reset-btn:hover,
+        .count-reset-display-btn:hover {
+            background: #e64a19;
+        }
+
+        .count-reset-display-btn {
+            background: #2196f3;
+        }
+
+        .count-reset-display-btn:hover {
+            background: #1976d2;
+        }
+
+        .timer-expired-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .timer-expired-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .timer-expired-message {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .result-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .result-message {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .result-message.passed {
+            border-left: 5px solid #4caf50;
+        }
+
+        .result-message.failed {
+            border-left: 5px solid #f44336;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .result-title.passed {
+            color: #4caf50;
+        }
+
+        .result-title.failed {
+            color: #f44336;
+        }
+
+        .result-stats {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .exit-btn {
+            background: #37474f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .exit-btn:hover {
+            background: #455a64;
+        }
+
+        /* Exam Mode Exit Button */
+        body.exam-mode .exit-btn {
+            background: #2c3e50;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Main Content */
+        body.exam-mode .main-content {
+            grid-template-columns: 1fr;
+            gap: 0;
+            background: #f5f5f5;
+        }
+
+        body.exam-mode.dark-mode .main-content {
+            background: #1a1a2e;
+        }
+
+        .quiz-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease, all 0.3s ease;
+        }
+
+        /* Exam Mode Quiz Section */
+        body.exam-mode .quiz-section {
+            background: #f5f5f5;
+            border-radius: 0;
+            padding: 20px;
+            box-shadow: none;
+            margin-bottom: 0;
+        }
+
+        body.exam-mode.dark-mode .quiz-section {
+            background: #1a1a2e;
+        }
+
+        .quiz-section.timer-expired {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .question-header {
+            background: #3f51b5;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Question Header */
+        body.exam-mode .question-header {
+            background: #0D0A69;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            justify-content: space-between;
+        }
+
+        .question-number {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Question Number */
+        body.exam-mode .question-number {
+            background: #34495e;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 14px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .question-counter {
+            background: #4caf50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            display: none;
+        }
+
+        /* Exam Mode Question Counter */
+        body.exam-mode .question-counter {
+            display: inline-block;
+        }
+
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* Exam Mode Question Text - NO OVERLAPPING NUMBER */
+        body.exam-mode .question-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        body.exam-mode.dark-mode .question-text {
+            color: #e0e0e0;
+        }
+
+        .answers {
+            space-y: 12px;
+        }
+
+        .answer-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Exam Mode Answer Options */
+        body.exam-mode .answer-option {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 0;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        body.exam-mode.dark-mode .answer-option {
+            background: #40407a;
+            border-color: #706fd3;
+            color: #e0e0e0;
+        }
+
+        .answer-option:hover:not(.disabled) {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+
+        /* Exam Mode Answer Option Hover */
+        body.exam-mode .answer-option:hover:not(.disabled) {
+            background: #e8f4fd;
+            border-color: #2196f3;
+            transform: none;
+        }
+
+        body.exam-mode.dark-mode .answer-option:hover:not(.disabled) {
+            background: #5352ed;
+            border-color: #3742fa;
+        }
+
+        .answer-option.selected {
+            background: #2196f3;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        /* Exam Mode Selected Answer */
+        body.exam-mode .answer-option.selected {
+            background: #2196f3;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        .answer-option.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #388e3c;
+        }
+
+        .answer-option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #d32f2f;
+        }
+
+        .answer-option.correct-answer-mode {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 2px solid #4caf50;
+            font-weight: 600;
+        }
+
+        .answer-option.other-answer-mode {
+            background: #f5f5f5;
+            color: #757575;
+            border: 1px solid #e0e0e0;
+            opacity: 0.7;
+        }
+
+        .answer-option.disabled {
+            cursor: not-allowed;
+        }
+
+        .answer-option.timer-expired {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .option-label {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        /* Exam Mode Option Label */
+        body.exam-mode .option-label {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            background: white;
+            font-size: 0;
+            position: relative;
+        }
+
+        body.exam-mode .answer-option.selected .option-label {
+            background: #2196f3;
+            border-color: #2196f3;
+        }
+
+        body.exam-mode .answer-option.selected .option-label::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .answer-option.selected .option-label,
+        .answer-option.correct .option-label,
+        .answer-option.incorrect .option-label {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .option-text {
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Navigation */
+        body.exam-mode .navigation {
+            justify-content: flex-start;
+            gap: 15px;
+            border-top: none;
+            margin-top: 20px;
+            padding-top: 0;
+        }
+
+        .nav-btn {
+            background: #3f51b5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        /* Exam Mode Navigation Buttons */
+        body.exam-mode .nav-btn {
+            background: #2196f3;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .nav-btn:hover {
+            background: #303f9f;
+        }
+
+        body.exam-mode .nav-btn:hover {
+            background: #1976d2;
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Exam Mode Sidebar - HIDE IN EXAM MODE */
+        body.exam-mode .sidebar {
+            display: none;
+        }
+
+        .controls-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .mode-toggles {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .toggle-btn:hover {
+            background: #e9ecef;
+        }
+
+        .toggle-btn.active {
+            background: #3f51b5;
+            color: white;
+            border-color: #3f51b5;
+        }
+
+        .jump-to-question {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .jump-to-question label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .jump-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .jump-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .jump-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .jump-btn:hover {
+            background: #1976d2;
+        }
+
+        .question-grid {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .grid-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 8px;
+        }
+
+        .grid-item {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .grid-item:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .grid-item.current {
+            background: #3f51b5;
+            color: white;
+            border-color: #3f51b5;
+        }
+
+        .grid-item.answered {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        
+        /* NEW: Correct answer in grid (Green) */
+        .grid-item.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+        
+        /* NEW: Incorrect answer in grid (Red) */
+        .grid-item.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+
+        .grid-item.unanswered {
+            background: #ff9800;
+            color: white;
+            border-color: #ff9800;
+        }
+
+        /* FIXED: SINGLE Exam Mode Question Grid - Navy Blue Header and White Background */
+        .exam-question-grid {
+            display: none;
+            margin-top: 20px;
+        }
+
+        body.exam-mode .exam-question-grid {
+            display: block;
+        }
+
+        .exam-grid-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: #0D0A69;
+            padding: 10px 15px;
+            border-radius: 6px;
+            color: white;
+        }
+
+        .exam-grid-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .exam-grid-toggle {
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .exam-grid-toggle:hover {
+            background: #4a6741;
+        }
+
+        /* FIXED: White background for exam grid container */
+        .exam-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+            gap: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            background: white;
+            padding: 15px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .exam-grid-container.collapsed {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            padding: 0;
+        }
+
+        /* FIXED: Exam Grid Items - Red color like reference image */
+        .exam-grid-item {
+            width: 35px;
+            height: 35px;
+            border: 1px solid #c0392b;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 11px;
+            transition: all 0.3s;
+            background: #e74c3c;
+            color: white;
+        }
+
+        .exam-grid-item:hover {
+            background: #c0392b;
+        }
+
+        .exam-grid-item.current {
+            background: #3498db;
+            border-color: #2980b9;
+        }
+
+        /* Answered questions - Red background like in reference */
+        .exam-grid-item.answered {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
+
+        /* Unanswered questions - Red background like in reference */
+        .exam-grid-item.unanswered {
+            background: #e74c3c;
+            border-color: #c0392b;
+        }
+
+        /* FIXED: Hide mobile question dropdown in exam mode */
+        .mobile-question-dropdown {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /* FIXED: Hide mobile dropdown in exam mode */
+        body.exam-mode .mobile-question-dropdown {
+            display: none !important;
+        }
+
+        .dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .dropdown-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .dropdown-arrow {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-arrow.expanded {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .dropdown-content.expanded {
+            max-height: 300px;
+            overflow-y: auto; /* Added scroll functionality */
+            padding-bottom: 10px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .timer-section {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .quiz-section {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .answer-option {
+                padding: 12px 15px;
+                gap: 10px;
+            }
+
+            .option-label {
+                width: 25px;
+                height: 25px;
+                font-size: 12px;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-btn {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .sidebar {
+                order: -1;
+            }
+
+            .controls-panel,
+            .question-grid {
+                padding: 15px;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+                gap: 6px;
+            }
+
+            .grid-item {
+                width: 35px;
+                height: 35px;
+                font-size: 11px;
+            }
+
+            /* Show mobile dropdown instead of sidebar grid in NON-EXAM mode only */
+            .question-grid {
+                display: none;
+            }
+
+            .mobile-question-dropdown {
+                display: block;
+            }
+
+            /* FIXED: Hide mobile dropdown in exam mode on mobile too */
+            body.exam-mode .mobile-question-dropdown {
+                display: none !important;
+            }
+
+            /* Exam Mode Mobile Adjustments */
+            body.exam-mode .container {
+                padding: 0;
+            }
+
+            body.exam-mode .header {
+                padding: 10px 15px;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            body.exam-mode .timer-section {
+                gap: 10px;
+            }
+
+            body.exam-mode .quiz-section {
+                padding: 15px;
+            }
+
+            body.exam-mode .question-text {
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+
+            body.exam-mode .answer-option {
+                padding: 10px 12px;
+                margin-bottom: 6px;
+            }
+
+            body.exam-mode .option-label {
+                width: 18px;
+                height: 18px;
+            }
+
+            body.exam-mode .navigation {
+                flex-direction: row;
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            body.exam-mode .nav-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+                width: auto;
+            }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .title {
+                font-size: 18px;
+            }
+
+            body.exam-mode .title {
+                font-size: 14px;
+            }
+
+            .timer-input, .count-input {
+                width: 50px;
+                font-size: 12px;
+            }
+
+            .timer {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            body.exam-mode .timer {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .question-text {
+                font-size: 14px;
+            }
+
+            body.exam-mode .question-text {
+                font-size: 13px;
+            }
+
+            .answer-option {
+                padding: 10px 12px;
+            }
+
+            body.exam-mode .answer-option {
+                padding: 8px 10px;
+            }
+
+            .option-text {
+                font-size: 14px;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+                gap: 4px;
+            }
+
+            .grid-item {
+                width: 30px;
+                height: 30px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">Enhanced Quiz Application</div>
+            <div class="timer-section">
+                <div class="timer-settings">
+                    <span class="timer-label">Minutes:</span>
+                    <input type="number" class="timer-input" id="minutesInput" value="30" min="1" max="180">
+                    <span class="timer-label">Seconds:</span>
+                    <input type="number" class="timer-input" id="secondsInput" value="0" min="0" max="59">
+                    <button class="timer-start-btn" onclick="startTimer()">Start</button>
+                </div>
+                
+                <div class="question-shuffle-settings">
+                    <span class="shuffle-label">🔀 Shuffle Questions:</span>
+                    <button class="shuffle-toggle-btn" id="shuffleToggleBtn" onclick="toggleQuestionShuffle()">Enable</button>
+                </div>
+                
+                <div class="question-count-settings">
+                    <span class="count-label">Questions:</span>
+                    <input type="number" class="count-input" id="questionCountInput" value="200" min="1" max="200">
+                    <span class="count-label">/ 200</span>
+                    <button class="count-reset-btn" onclick="setQuestionCount()">Set</button>
+                </div>
+                
+                <div class="timer" id="timer">
+                    <span>⏰</span>
+                    <span id="timerDisplay">No timer set</span>
+                    <button class="timer-reset-btn" id="timerResetBtn" onclick="resetTimer()">Reset</button>
+                </div>
+                
+                <div class="question-shuffle-display" id="questionShuffleDisplay">
+                    <span>🔀</span>
+                    <span id="shuffleDisplayText">Shuffle: Off</span>
+                    <button class="shuffle-reset-btn" id="shuffleResetBtn" onclick="resetQuestionShuffle()">Reset</button>
+                </div>
+                
+                <div class="question-count-display" id="questionCountDisplay">
+                    <span>📊</span>
+                    <span id="countDisplayText">200 / 200</span>
+                    <button class="count-reset-display-btn" id="countResetDisplayBtn" onclick="resetQuestionCount()">Reset</button>
+                </div>
+                
+                <button class="exit-btn" onclick="exitQuiz()">
+                    <span>🚪</span>
+                    <span id="exitBtnText">Exit</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="quiz-section" id="quizSection">
+                <div class="question-header">
+                    <div class="question-number" id="questionNumber">Question 1</div>
+                    <div class="question-counter" id="questionCounter">1 / 200</div>
+                </div>
+                
+                <div class="question-text" id="questionText">
+                    Loading question...
+                </div>
+                
+                <div class="answers" id="answersContainer">
+                    </div>
+                
+                <div class="navigation">
+                    <button class="nav-btn" id="prevBtn" onclick="previousQuestion()" disabled>Previous</button>
+                    <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">Next</button>
+                    <button class="nav-btn" id="finishBtn" onclick="finishQuiz()" style="display: none;">Finish</button>
+                    <button class="nav-btn" id="submitBtn" onclick="finishQuiz()" style="display: none;">Submit</button>
+                </div>
+
+                <div class="mobile-question-dropdown" id="mobileQuestionDropdown">
+                    <div class="dropdown-header" onclick="toggleMobileDropdown()">
+                        <div class="dropdown-title">Question Navigator</div>
+                        <div class="dropdown-arrow" id="dropdownArrow">▼</div>
+                    </div>
+                    <div class="dropdown-content" id="dropdownContent">
+                        <div class="grid-container" id="mobileQuestionGrid">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="exam-question-grid" id="examQuestionGrid">
+                    <div class="exam-grid-header">
+                        <div class="exam-grid-title">Question Navigator</div>
+                        <button class="exam-grid-toggle" id="examGridToggle" onclick="toggleExamGrid()">Collapse</button>
+                    </div>
+                    <div class="exam-grid-container" id="examGridContainer">
+                        </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="controls-panel">
+                    <div class="controls-title">Quiz Controls</div>
+                    <div class="mode-toggles">
+                        <button class="toggle-btn" id="darkModeBtn" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+                        <button class="toggle-btn" id="answerModeBtn" onclick="toggleAnswerMode()">💡 Answer Mode</button>
+                        <button class="toggle-btn" id="questionShuffleModeBtn" onclick="toggleQuestionShuffleMode()">🔀 Shuffle Questions</button>
+                        <button class="toggle-btn" id="examModeBtn" onclick="toggleExamMode()">🎓 Simulate Exam Mode</button>
+                    </div>
+                    <div class="jump-to-question">
+                        <label for="jumpInput">Jump to Question:</label>
+                        <div class="jump-input-group">
+                            <input type="number" class="jump-input" id="jumpInput" min="1" max="200" placeholder="Enter question number">
+                            <button class="jump-btn" onclick="jumpToQuestionNumber()">Go</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-grid">
+                    <div class="grid-title">Question Navigator</div>
+                    <div class="grid-container" id="questionGrid">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="timer-expired-overlay" id="timerExpiredOverlay">
+        <div class="timer-expired-message">
+            <h2>⏰ Time's Up!</h2>
+            <p>The timer has expired. Your quiz has been automatically submitted.</p>
+            <button class="nav-btn" onclick="hideTimerExpiredOverlay()">Continue</button>
+        </div>
+    </div>
+
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-message" id="resultMessage">
+            <div class="result-title" id="resultTitle">Quiz Completed!</div>
+            <div class="result-stats" id="resultStats">
+                </div>
+            <button class="nav-btn" onclick="hideResultOverlay()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data
+        const questions = [
+        {
+            question: "Choose proliferative elements of rash",
+            answers: [
+                { text: "blister", correct: true },
+                { text: "vesicle", correct: false },
+                { text: "Erosion", correct: false },
+                { text: "Scar", correct: false },
+                { text: "Bulla", correct: false },
+            ]
+        },
+        {
+            question: "Choose proliferative elements of rash",
+            answers: [
+                { text: "Nodule", correct: true },
+                { text: "vesicle", correct: false },
+                { text: "Erosion", correct: false },
+                { text: "Scar", correct: false },
+                { text: "Bulla", correct: false },
+            ]
+        },
+        {
+            question: "What function of keratinocytes",
+            answers: [
+                { text: "reproduction", correct: true },
+                { text: "protection from UV rays", correct: false },
+                { text: "termoregulation", correct: false },
+                { text: "moisturizing", correct: false },
+                { text: "tactile sensation", correct: false },
+            ]
+        },
+        {
+            question: "What pathohistological changes in stratum corneum",
+            answers: [
+                { text: "Hyperkeratosis", correct: true },
+                { text: "granulosis", correct: false },
+                { text: "Acanthosis", correct: false },
+                { text: "Acantholysis", correct: false },
+                { text: "Papillomatosis", correct: false },
+            ]
+        },
+        {
+            question: "Choose secondary elements of rash",
+            answers: [
+                { text: "Abrasion", correct: true },
+                { text: "Abscesses", correct: false },
+                { text: "Blister", correct: false },
+                { text: "Enanthema", correct: false },
+                { text: "Macula", correct: false },
+            ]
+        },
+        {
+            question: "Choose secondary elements of rash",
+            answers: [
+                { text: "Erosion", correct: true },
+                { text: "Blister", correct: false },
+                { text: "Abscesses", correct: false },
+                { text: "spots", correct: false },
+                { text: "Enanthema", correct: false },
+            ]
+        },
+        {
+            question: "Differentiate in which of the following conditions does parakeratosis most frequently occur?",
+            answers: [
+                { text: "Actinic keratosis", correct: true },
+                { text: "Seborrheic keratosis", correct: false },
+                { text: "Molluscum contagiosum", correct: false },
+                { text: "Basal cell carcinoma", correct: false },
+                { text: "Pitiriasis versicolor", correct: false },
+            ]
+        },
+        {
+            question: "Specify cells that connnect desmosomes",
+            answers: [
+                { text: "Keratinocytes", correct: true },
+                { text: "Melanocytes", correct: false },
+                { text: "Dermis and epidermis", correct: false },
+                { text: "Langerhans cells", correct: false },
+                { text: "Merkel cells", correct: false },
+            ]
+        },
+        {
+            question: "Determine what layer affects spongiosis",
+            answers: [
+                { text: "Stratum spinosum", correct: true },
+                { text: "Stratum basale", correct: false },
+                { text: "Stratum corneum", correct: false },
+                { text: "Stratum granulosum", correct: false },
+                { text: "Stratum licudum", correct: false },
+            ]
+        },
+        {
+            question: "Sweat glands of palm can be diffe rentiated from others by the following",
+            answers: [
+                { text: "Secretion stimulated by emotional stimuli", correct: true },
+                { text: "Apocrine glands", correct: false },
+                { text: "High chloride content", correct: false },
+                { text: "Adrenergic mediators control the secretion", correct: false },
+            ]
+        },
+        {
+            question: "Apocrine sweat glands are located in:",
+            answers: [
+                { text: "Armpits", correct: true },
+                { text: "hairy part of head", correct: false },
+                { text: "lower leg region", correct: false },
+                { text: "in the area of the back of the hands", correct: false },
+                { text: "on the soles", correct: false },
+            ]
+        },
+        {
+            question: "Eccrine sweat glands are located:",
+            answers: [
+                { text: "throughout the skin", correct: true },
+                { text: "On the back of the brushes", correct: false },
+                { text: "in the rear foot", correct: false },
+                { text: "on the nails", correct: false },
+                { text: "on hair", correct: false },
+            ]
+        },
+        {
+            question: "The sebaceous glands function:",
+            answers: [
+                { text: "moisturizing", correct: true },
+                { text: "thermoregulatory", correct: false },
+                { text: "receptor", correct: false },
+                { text: "exchange", correct: false },
+                { text: "respiratory", correct: false },
+            ]
+        },
+        {
+            question: "Long hair located in the area:",
+            answers: [
+                { text: "head", correct: true },
+                { text: "Eye brow", correct: false },
+                { text: "about nail bed", correct: false },
+                { text: "sole", correct: false },
+                { text: "palms", correct: false },
+            ]
+        },
+        {
+            question: "Bristly hair range:",
+            answers: [
+                { text: "in the field of beard and mustache", correct: true },
+                { text: "in the nasal and auditory canal", correct: false },
+                { text: "in the eyebrow area", correct: false },
+                { text: "in the field of eyelashes", correct: false },
+                { text: "heads", correct: false },
+            ]
+        },
+        {
+            question: "In addition to sweating, thermoregulation is performed using:",
+            answers: [
+                { text: "Constriction or dilation of blood vessels", correct: true },
+                { text: "Taurus Fater Pacini", correct: false },
+                { text: "Sebecious  glands", correct: false },
+                { text: "Merkel cells", correct: false },
+                { text: "Ruffini corpuscle", correct: false },
+            ]
+        },
+        {
+            question: "A 60-year-old man consulted a dermatologist. Complaints of a rash on the back of the neck, soreness, fever, limitation of neck mobility. Has been ill for 2 weeks. Concomitant disease: Diabetes mellitus. Objectively: on the skin of the back of the neck there is an infiltrate of stagnant-cyanotic color, in the central part with multiple pustules and foci of skin necrosis. A purulent bloody fluid flows out of the fistulous openings. The patient has a body temperature of 39 ̊С, the submandibular, cervical lymph nodes are enlarged, painful. Which of the following preliminary diagnoses is the most likely?",
+            answers: [
+                { text: "Carbuncle", correct: true },
+                { text: "Sycosis", correct: false },
+                { text: "Hydradenitis", correct: false },
+                { text: "Folliculitis", correct: false },
+                { text: "Ostiofolliculitis", correct: false },
+            ]
+        },
+        {
+            question: "A 26-year-old woman consulted a dermatologist. Complaints of sharp pain in the left axillary region. The disease began acutely 3 days ago. Suffers from increased sweating. Concomitant disease: Obesity II degree. On examination: in the left axillary region, there are several dense painful nodes, up to 1.8 cm in diameter, adhered to the skin, purple-red, conical in shape, with a defining fluctuation in the center. Body temperature 37.4 ̊С. In the clinical analysis of blood: leukocytes 13.8 x 10 g / l, ESR 18 mm / h. Which of the following preliminary diagnoses is the most likely?",
+            answers: [
+                { text: "hydradenitis", correct: true },
+                { text: "Carbuncle", correct: false },
+                { text: "Furuncle", correct: false },
+                { text: "folliculitis", correct: false },
+                { text: "ostiofolliculitis", correct: false },
+            ]
+        },
+        {
+            question: "A 49-year-old man came to the clinic. Complaints of painful formation on the back of the neck, chills. Body temperature 38.5 ̊С. She has a history of hypothermia. Among the accompanying diseases: chronic gastritis, chronic colitis. On examination: the skin on the back of the neck is purple-red, hot to the touch, edematous, infiltrated. In the central part, it has several fistulous openings, from which thick pus with an admixture of blood and necrotic masses is released. On palpation, a sharp pain in the lesion. Which of the following preliminary diagnoses is the most likely?",
+            answers: [
+                { text: "carbuncle", correct: true },
+                { text: "sycosis", correct: false },
+                { text: "folliculitis", correct: false },
+                { text: "osteofolliculitis", correct: false },
+                { text: "hydradenitis", correct: false },
+            ]
+        },
+        {
+            question: "A woman with a child of 8 years old applied to the doctor. Complaints about rashes in the corners of the mouth, pain. Anamnesis: frequent flue. Sick for a week. Objectively: in the corners of the mouth there are slit-like erosion, cracks surrounded by a corolla of exfoliated epidermis, covered with yellow crusts. Scraping on the mycelium of the fungus is negative. Which of the following preliminary diagnoses is the most likely?",
+            answers: [
+                { text: "Slit impetigo", correct: true },
+                { text: "Staphylococcal impetigo", correct: false },
+                { text: "Streptococcal impetigo", correct: false },
+                { text: "Vulgar impetigo", correct: false },
+                { text: "Bullous impetigo", correct: false },
+            ]
+        },
+        {
+            question: "A man, 40 years old, applied to a dermatologist at the FMC. Complaints about a rash on the face in the area of ​​the mustache and beard. From the anamnesis he has been sick for a month. A concomitant disease is chronic gastritis. On examination: on the skin of the face in the area of ​​the beard and mustache against the background of hyperemia and infiltration, there are multiple scattered follicular papules and pustules, erosion, covered with purulent discharge and crusts, in places due to perifollicular inflammation, forming confluent foci covered with purulent crusts. Which of the following preliminary diagnoses is the most likely?",
+            answers: [
+                { text: "vulgar sycosis", correct: true },
+                { text: "gangrenous pyoderma", correct: false },
+                { text: "Slit impetigo", correct: false },
+                { text: "lichen simplex", correct: false },
+                { text: "Vulgar impetigo", correct: false },
+            ]
+        },
+        {
+            question: "A 32-year-old woman consulted a dermatologist. Complaints of eruptions accompanied by evening and nighttime itching. There are no associated diseases. Lives alone, two weeks ago she was visiting. On examination: on the skin of the trunk, especially on the anterolateral surfaces, around the nipples, on the upper and lower extremities, in the interdigital spaces there are numerous paired papules - vesicular elements, excoriation, bloody crusts. Symptoms of Cesari, Gorchakov are positive. Subjective: evening and nighttime itching. Which of the following preliminary diagnoses is the most likely?",
+            answers: [
+                { text: "scabies", correct: true },
+                { text: "eczema", correct: false },
+                { text: "dermatitis", correct: false },
+                { text: "psoriasis", correct: false },
+                { text: "prurigo", correct: false },
+            ]
+        },
+        {
+            question: "staphyloderma neonatal include:",
+            answers: [
+                { text: "vesiculopustosis", correct: true },
+                { text: "exudative erythema", correct: false },
+                { text: "diathesis", correct: false },
+                { text: "lichen planus", correct: false },
+                { text: "pityriasis versicolor", correct: false },
+            ]
+        },
+        {
+            question: "Sycosis is localized:",
+            answers: [
+                { text: "in mustache and beard", correct: true },
+                { text: "on the skin of the hips", correct: false },
+                { text: "on the skin of the palms", correct: false },
+                { text: "on the scalp", correct: false },
+                { text: "on face", correct: false },
+            ]
+        },
+        {
+            question: "In the treatment of furunculosis, use:",
+            answers: [
+                { text: "cephalosporins", correct: true },
+                { text: "cytostatics", correct: false },
+                { text: "Anabolic", correct: false },
+                { text: "anti-TB drugs", correct: false },
+                { text: "ACTG", correct: false },
+            ]
+        },
+        {
+            question: "A carbuncle is:",
+            answers: [
+                { text: "Damage to several hair follicles", correct: true },
+                { text: "single hair follicle", correct: false },
+                { text: "Lesion of the nail bed", correct: false },
+                { text: "Disease of sweat glands", correct: false },
+                { text: "PVHD", correct: false },
+            ]
+        },
+        {
+            question: "At the reception of a dermatologist a woman with her daughter 5 years old. Three days ago, after being bitten by mosquitoes and scratching, blisters began to appear on the girl's face, which quickly dried into crusts. Washing with hot soapy water caused an increase in rashes. Objectively: in the nasolabial folds, on the upper lip, cheeks and on the chin, there are single flat blisters with a thin lining and turbid contents, light yellow crusts. A preliminary diagnosis was made: Streptococcal impetigo. Which of the following drugs should be prescribed for external therapy?",
+            answers: [
+                { text: "fucorsin", correct: true },
+                { text: "lamisil", correct: false },
+                { text: "exoderil", correct: false },
+                { text: "nizoral", correct: false },
+                { text: "zalain", correct: false },
+            ]
+        },
+        {
+            question: "A 60-year-old man went to the clinic. Complaints about a rash on the skin of the back of the neck, soreness. Has been ill for two weeks. Concomitant disease: Diabetes mellitus. On examination: an acute inflammatory infiltrate with many necrotic rods involving the underlying tissues, edema. In the center of the infiltrate, there are necrotic areas and fistulous openings with the release of pus mixed with blood. Diagnosed with Carbuncle. Which of the following is the most appropriate treatment?",
+            answers: [
+                { text: "surgical", correct: true },
+                { text: "physiotherapy", correct: false },
+                { text: "phytotherapeutic", correct: false },
+                { text: "laser therapy", correct: false },
+                { text: "phototherapy", correct: false },
+            ]
+        },
+        {
+            question: "A 5-year-old man with a child applied to a dermatologist. Complaints about a rash in the groin - femoral, intergluteal folds. Stage II obesity. Objectively: multiple conflicts rapidly opening, forming weeping foci of bright pink color, with scalloped borders, linear cracks in the depths of the folds. The preliminary diagnosis: Intertriginous streptoderma. Which of the following is the most appropriate form in local patient care?",
+            answers: [
+                { text: "powder", correct: true },
+                { text: "ointment", correct: false },
+                { text: "paste", correct: false },
+                { text: "cream", correct: false },
+                { text: "varnish", correct: false },
+            ]
+        },
+        {
+            question: "A 24-year-old woman consulted a dermatologist at the clinic. Complaints about the appearance of rashes, accompanied by severe nighttime itching. Anamnesis - eczema. Two weeks ago she was in a sanatorium. On examination: in the interdigital folds of the hands, on the flexion surfaces of the wrist joints, elbows and abdomen, there are numerous papulo-vesicular elements, up to 3 - 4 mm in diameter, located in pairs, as well as point and linear excoriation, in the elbow area - punctate bloody crusts. Subjective: severe nighttime itching. Preliminary diagnosis: Scabies. Which of the following symptoms is typical for this disease?",
+            answers: [
+                { text: "gorchakov", correct: true },
+                { text: "nikolsky", correct: false },
+                { text: "kebner", correct: false },
+                { text: "pilnov", correct: false },
+                { text: "sheklakov", correct: false },
+            ]
+        },
+        {
+            question: "A 30-year-old man has consulted a dermatologist at the FMC. Complaints of a rash on the skin of the trunk, upper and lower extremities, accompanied by evening and nighttime itching. From the anamnesis 2 weeks ago he was visiting relatives. On examination: on the skin of the trunk, especially on the anterolateral surfaces, abdomen, upper and lower limbs, there are numerous paired papules - vesicular elements, scratches, bloody crusts. Subjective: evening and nighttime itching. When examining scrapings, a scabies mite was found microscopically. Diagnosis: Scabies. Which of the following drugs should be prescribed for external therapy?",
+            answers: [
+                { text: "spregal", correct: true },
+                { text: "tridox", correct: false },
+                { text: "fenistil", correct: false },
+                { text: "akriderm", correct: false },
+                { text: "skinazole", correct: false },
+            ]
+        },
+        {
+            question: "A 28-year-old woman turned to a dermatologist at the clinic. Complaints of itchy rash in the pubic area, which appeared a few days after intercourse. On examination: on the skin of the pubis and genitals, multiple grayish-brown points at the hair root, small, whitish, very dense nodules, as well as grayish-bluish spots, rounded outlines, up to 1 cm in diameter are determined. Preliminary diagnosis: Pubic lice. Which of the following drugs should be prescribed for external therapy?",
+            answers: [
+                { text: "permethrin", correct: true },
+                { text: "tridox", correct: false },
+                { text: "sinaflan", correct: false },
+                { text: "akriderm", correct: false },
+                { text: "skinazole", correct: false },
+            ]
+        },
+        {
+            question: "Angular stomatitis is differentiated from:",
+            answers: [
+                { text: "Surface candidosis of the corners of the mouth", correct: true },
+                { text: "With simple deprive", correct: false },
+                { text: "with turpiolem", correct: false },
+                { text: "with psoriasis", correct: false },
+                { text: "Simple dermatitis", correct: false },
+            ]
+        },
+        {
+            question: "Turniol is:",
+            answers: [
+                { text: "inflammation of the skin around the nail plate", correct: true },
+                { text: "inflammation of the sebaceous glands", correct: false },
+                { text: "inflammation of the hair follicle", correct: false },
+                { text: "Inflammation of the red border of the lip", correct: false },
+                { text: "eye damage", correct: false },
+            ]
+        },
+        {
+            question: "Pityriasis versicolor is caused by:",
+            answers: [
+                { text: "pityrosporum orbiculare", correct: true },
+                { text: "candida albicans", correct: false },
+                { text: "microsporum ferrugeneum", correct: false },
+                { text: "trichophyton rubrum", correct: false },
+                { text: "corinebacterium minutissimum", correct: false },
+            ]
+        },
+        {
+            question: "What kind of peeling is typical for multi-colored lichen?",
+            answers: [
+                { text: "pityriasis", correct: true },
+                { text: "small lamellar", correct: false },
+                { text: "flour like", correct: false },
+                { text: "large lamellar", correct: false },
+                { text: "leafy", correct: false },
+            ]
+        },
+        {
+            question: "What drugs are preferred for the treatment of superficial trichophytosis",
+            answers: [
+                { text: "antifungal", correct: true },
+                { text: "corticosteroid", correct: false },
+                { text: "antiviral", correct: false },
+                { text: "antibacterial", correct: false },
+                { text: "keratolytic", correct: false },
+            ]
+        },
+        {
+            question: "In the treatment of microsporia, apply:",
+            answers: [
+                { text: "fluconazole", correct: true },
+                { text: "ceftriaxone", correct: false },
+                { text: "ciprofloxacin", correct: false },
+                { text: "larotadine", correct: false },
+                { text: "ursodex", correct: false },
+            ]
+        },
+        {
+            question: "A mother with a 7-year-old child came to dermatologist. She discovered a patch of hair loss on the scalp. When viewed on the scalp, a lesion measuring 2 cm in diameter is determined, the hair seems to be \"sloppy cut\", at the level of 5-8 mm with grayish stumps; the skin peels off profusely, a zone of mild hyperemia is determined along the periphery of the focus. An emerald-green glow was detected during luminescence research. What is the most likely diagnosis?",
+            answers: [
+                { text: "microsporia", correct: true },
+                { text: "seborrhea", correct: false },
+                { text: "trichophytosis", correct: false },
+                { text: "alopecia", correct: false },
+                { text: "favus", correct: false },
+            ]
+        },
+        {
+            question: "A 40-year-old woman working as a milkmaid turned to an appointment with a dermatologist, complaining of painful elevations in the occiput. Objectively: in the occipital region on the scalp, acute inflammatory infiltrates sharply demarcated from the surrounding skin are determined, which noticeably rise above the skin level. The hair in the outbreak is stuck together due to the release of pus. With light tugging, the hair is easily pulled out. When the lesions are squeezed, pus is released from the hair follicles, the symptom of \"honeycomb\" is positive. What is the most likely diagnosis?",
+            answers: [
+                { text: "trichophytosis", correct: true },
+                { text: "microsporia", correct: false },
+                { text: "pediculosis", correct: false },
+                { text: "seborrhea", correct: false },
+                { text: "psoriasis", correct: false },
+            ]
+        },
+        {
+            question: "A 20-year-old man, applied to the FMC  with complaints of rashes in the area of ​​the groin-femoral folds, minor itching. From the anamnesis - attends the sports section. Objectively: spots on the skin of the inguinal-femoral folds are brown in color with distinct ridge-like scalloped edges. On the periphery of the spots there are papulovesicular elements, in the center there are foci of hypopigmentation. Epidermophyton floccosum was found by laboratory. What is the most likely diagnosis?",
+            answers: [
+                { text: "epidermophytisis of the inguinal folds", correct: true },
+                { text: "trichophytosis of smooth skin", correct: false },
+                { text: "flexion inverse psoriasis", correct: false },
+                { text: "candidiasis of inguinal folds", correct: false },
+                { text: "erythrasma of the groin area", correct: false },
+            ]
+        },
+        {
+            question: "A mother with a 5-year-old child turned to a dermatologist with complaints of rashes on the skin of the child's trunk and limbs. From the anamnesis: a week ago he was at my grandmother's house and played with the cat. An objective examination revealed multiple rounded foci of various sizes, pale pink color, with fine-lamellar superficial peeling. The boundaries of the foci are clear, with a towering edematous ridge, consisting of small nodular and vesicular elements. Foci in the form of \"ring in a ring\" figures. Microsporum canis was found during research. Provide the most likely diagnosis",
+            answers: [
+                { text: "microsporia", correct: true },
+                { text: "erythrasma", correct: false },
+                { text: "trichophytosis", correct: false },
+                { text: "eczema", correct: false },
+                { text: "psoriasis", correct: false },
+            ]
+        },
+        {
+            question: "A 24-year-old man came to see a doctor at the FMC with complaints of peeling of the scalp. On examination, the patient has a pronounced erythema of the skin, peeling, thinning hair. At the base of many hairs, rounded formations are determined, resembling an inverted saucer - scutula. Hair is dull, gray in color, reminiscent of an old chignon. In the centers of hair thinning, there are signs of cicatricial atrophy of the skin. An unpleasant \"mouse\" smell comes from the hair. What disease is such a picture typical for?",
+            answers: [
+                { text: "favus of the scalp", correct: true },
+                { text: "seborrhea of the scalp", correct: false },
+                { text: "teichophytosis of the scalp", correct: false },
+                { text: "microsporia of the scalp", correct: false },
+                { text: "flexion inverse psoriasis", correct: false },
+            ]
+        },
+        {
+            question: "A 35-year-old woman consulted a dermatologist with complaints of skin lesions under the mammary glands, burning and slight itching. Objectively: a woman has dark red flushing foci with clear boundaries in the folds under the mammary glands. Erosion in the center of the folds is covered with a whitish coating, when removed, bright red erosive surfaces are exposed. There are small nodular elements along the periphery of the foci. From research identified Candida albicans. Diagnosis: Intertriginous candidiasis. What disease is differential diagnosis performed with?",
+            answers: [
+                { text: "candidiasis", correct: true },
+                { text: "dermatitis", correct: false },
+                { text: "eczema", correct: false },
+                { text: "psoriasis", correct: false },
+                { text: "pruritus", correct: false },
+            ]
+        },
+        {
+            question: "When examining schoolchildren, a 14-year-old teenager showed rashes on the skin of his chest. Objectively: single spots of various configurations and sizes on the skin of the upper half of the body, yellowish-brown in color, reminiscent of the type of \"coffee with milk\", with pityriasis peeling on the surface. Balzer's iodine test is positive. Laboratory - found Pityrosporum orbiculare / What is the most likely diagnosis?",
+            answers: [
+                { text: "pityriasis vesicolor", correct: true },
+                { text: "psoriasis vulgaris", correct: false },
+                { text: "pink lichen", correct: false },
+                { text: "disffuse neurodermatitis", correct: false },
+                { text: "skin itching", correct: false },
+            ]
+        },
+        {
+            question: "A 25-year-old man consulted a local doctor with complaints of swelling, itching and soreness of the nail folds. Objectively: the nail plates are deformed, yellowish; when pressed from the side, droplets of pus protrude from under the rollers. The nail folds are edematous, brightly hyperemic. Microscopic examination revealed mycelium of the fungus. Diagnosis: Candidiasis of the nail plates. What medicines are prescribed for this diagnosis?",
+            answers: [
+                { text: "antifungal", correct: true },
+                { text: "antihistamines", correct: false },
+                { text: "antiprotozoal", correct: false },
+                { text: "corticosteroid", correct: false },
+                { text: "antibacterial", correct: false },
+            ]
+        },
+        {
+            question: "A mother with a child of 9 years old, went to the clinic with complaints of hair loss in the child. Objectively: on the scalp, the lesions are located on the marginal zones, merging with each other. The inflammation is covered with asbestos-like scales. Hair is broken off at the level of 5-8 mm. The hair is dull, at the base is dressed in a white cover. In laboratory research, mycelium filaments were found. Diagnosis: Microsporia of the scalp. Which of the following drugs is preferable in the treatment of microsporia of the scalp",
+            answers: [
+                { text: "terbizil", correct: true },
+                { text: "ceftriaxone", correct: false },
+                { text: "ciprofloxacin", correct: false },
+                { text: "ornidazole", correct: false },
+                { text: "Amoxicillin", correct: false },
+            ]
+        },
+        {
+            question: "A mother with a child of 11 years old, went to the clinic with complaints of itching of the scalp and hair loss. Objectively: on the scalp, a lesion measuring 2 cm in diameter is determined, the hair appears to be \"carelessly cut\", broken off at the level of 5-6 mm, with grayish stumps, the skin is abundantly flaky, and a zone of slight hyperemia is determined along the periphery of the lesion. A luminescent study revealed a greenish glow. Diagnosis: Microsporia of the scalp. What disease is differential diagnosis performed with?",
+            answers: [
+                { text: "trichophytosis", correct: true },
+                { text: "eczema", correct: false },
+                { text: "seborrhea", correct: false },
+                { text: "alopecia", correct: false },
+                { text: "psoriasis", correct: false },
+            ]
+        },
+        {
+            question: "Eczema is:",
+            answers: [
+                { text: "chronic inflammation over. skin layers, polymorphism of elements", correct: true },
+                { text: "chronic infectious skin inflammation", correct: false },
+                { text: "acute infectious inflammation of the skin", correct: false },
+                { text: "monomorphism of elements", correct: false },
+                { text: "Chronic inflammation of the connective tissue", correct: false },
+            ]
+        },
+        {
+            question: "Secondary elements for true eczema:",
+            answers: [
+                { text: "erosion", correct: true },
+                { text: "vegetation", correct: false },
+                { text: "ulcer", correct: false },
+                { text: "abrasion", correct: false },
+                { text: "lichenification", correct: false },
+            ]
+        },
+        {
+            question: "Species of true eczema:",
+            answers: [
+                { text: "idiopathic", correct: true },
+                { text: "Microbial", correct: false },
+                { text: "children", correct: false },
+                { text: "paratraumatic", correct: false },
+                { text: "ribbon-like", correct: false },
+            ]
+        },
+        {
+            question: "The most frequent localization of true eczema:",
+            answers: [
+                { text: "palms and soles", correct: true },
+                { text: "mucous urethra", correct: false },
+                { text: "dried shells", correct: false },
+                { text: "Language", correct: false },
+                { text: "esophagus", correct: false },
+            ]
+        },
+        {
+            question: "Differential diagnostic criteria for true eczema:",
+            answers: [
+                { text: "Symmetry of rash", correct: true },
+                { text: "presence of purulent ulcers", correct: false },
+                { text: "asymmetry of rash", correct: false },
+                { text: "Nikolsky positive symptom", correct: false },
+                { text: "presence of scars", correct: false },
+            ]
+        },
+        {
+            question: "To diagnostic criteria for prurginic eczema, include:",
+            answers: [
+                { text: "papulovesicles on a tight base", correct: true },
+                { text: "Excessive oozing", correct: false },
+                { text: "symptom Sheklakova", correct: false },
+                { text: "Presence of pustules", correct: false },
+                { text: "the presence of vegetations", correct: false },
+            ]
+        },
+        {
+            question: "It is used locally for true eczema:",
+            answers: [
+                { text: "solution of rivanol", correct: true },
+                { text: "Clotrimazole", correct: false },
+                { text: "Sol. Demyanovich", correct: false },
+                { text: "Mycosist", correct: false },
+                { text: "Corvalol", correct: false },
+            ]
+        },
+        {
+            question: "Seborrheic eczema is differentiated from:",
+            answers: [
+                { text: "Seborrheic dermatitis", correct: true },
+                { text: "Inguinal epidermophitia", correct: false },
+                { text: "syphilitic alopecia", correct: false },
+                { text: "neurodermatitis", correct: false },
+                { text: "Scabies", correct: false },
+            ]
+        },
+        {
+            question: "Against the background of what diseases | seborrheic eczema occurs:",
+            answers: [
+                { text: "Fat seborrhea", correct: true },
+                { text: "Microbial Eczema", correct: false },
+                { text: "idiopathic eczema", correct: false },
+                { text: "Seborrheic baldness", correct: false },
+                { text: "Obesity", correct: false },
+            ]
+        },
+        {
+            question: "A 27-year-old patient has turned to a dermatologist with complaints of rashes and itching in the feet. The disease is associated with a visit to the bath 2 weeks ago. Objectively: on the skin of the arch of the foot and its lateral surfaces, as well as the interdigital spaces against the background of erythema and swelling, there are flat bublles with a dense cover, resembling \"sago grains\", with peeling and thickening of the skin on the surface. The lesions on the periphery are surrounded by a border of exfoliating epidermis with small vesicles along the edge, there are cracks and weeping. What is the most likely diagnosis",
+            answers: [
+                { text: "epidermophytosis of the feet", correct: true },
+                { text: "pityriasis versicolor", correct: false },
+                { text: "microbial eczema", correct: false },
+                { text: "psoriasis of nail", correct: false },
+                { text: "rubromycosis of feet", correct: false },
+            ]
+        },
+        {
+            question: "A 25-year-old man turned to a dermatologist  with complaints of multiple rashes in the chest area, which he associates with sunburn. Objectively: single spots of various configurations and sizes on the skin of the upper half of the body, yellowish-brown in color with pityriasis peeling on the surface. Balzer's iodine test is positive. Laboratory examination found Pityropsporum orbiculare. What is the most likely diagnosis?",
+            answers: [
+                { text: "pityriasis versicolor", correct: true },
+                { text: "superficial trichophytosis", correct: false },
+                { text: "superficial microsporia", correct: false },
+                { text: "psoriasis vulgaris", correct: false },
+                { text: "atopic dermatitis", correct: false },
+            ]
+        },
+        {
+            question: "A 28-year-old man, applied to the FMC with complaints of rashes on the skin of the feet and toes and changes in the nail plates. From the anamnesis: he has been suffering from this disease for about 2 years, for the first time the rash appeared while serving in the army. Objectively: on the skin of the soles, there is marked infiltration, diffuse hyperemia, skin furrows with pronounced mucous peeling are clearly visible. The process captures the back and side surfaces of the feet and toes. All the nail plates on the skin of the feet are thickened, easily crumble, subungual hyperkeratosis is noted. A laboratory study found Trihophyton rubrum. What is the most likely diagnosis?",
+            answers: [
+                { text: "rubrophytia of pedis", correct: true },
+                { text: "superficial microsporia", correct: false },
+                { text: "superficial trichophytosis", correct: false },
+                { text: "epidermophytosis of the feet", correct: false },
+                { text: "erythrasma folds", correct: false },
+            ]
+        },
+        {
+            question: "Apply the treatment for lichen planus on the oral mucosa",
+            answers: [
+                { text: "corticosteroid", correct: true },
+                { text: "antibiotics", correct: false },
+                { text: "cytostatics", correct: false },
+                { text: "antimalarial drugs", correct: false },
+                { text: "antifungal drugs", correct: false },
+            ]
+        },
+        {
+            question: "Differentiate psoriasis with",
+            answers: [
+                { text: "lichen planus", correct: true },
+                { text: "toxicoderma", correct: false },
+                { text: "pemfigus vulgaris", correct: false },
+                { text: "scabies", correct: false },
+                { text: "pyodermia", correct: false },
+            ]
+        },
+        {
+            question: "Apply the external treatment for lichen planus",
+            answers: [
+                { text: "corticosteroids ointments", correct: true },
+                { text: "antibiotics ointments", correct: false },
+                { text: "antifungal ointments", correct: false },
+                { text: "antiviral ointments", correct: false },
+                { text: "sun block cream", correct: false },
+            ]
+        },
+        {
+            question: "Apply the treatment for psoriasis reabilitation stage",
+            answers: [
+                { text: "emolient", correct: true },
+                { text: "antibiotics cream", correct: false },
+                { text: "keratolitic ointment", correct: false },
+                { text: "corticosteroid ointment", correct: false },
+                { text: "antifungal ointment", correct: false },
+            ]
+        },
+        {
+            question: "Apply diagnostic test for psoriasis",
+            answers: [
+                { text: "auspith triad", correct: true },
+                { text: "balcar test", correct: false },
+                { text: "wood lamp", correct: false },
+                { text: "microscopic examination", correct: false },
+                { text: "Yadasson test", correct: false },
+            ]
+        },
+        {
+            question: "Apply diagnostic test for lichen planus",
+            answers: [
+                { text: "Wickham mash", correct: true },
+                { text: "wood lamp", correct: false },
+                { text: "microscopic examinaion", correct: false },
+                { text: "balcar test", correct: false },
+                { text: "Yadasson test", correct: false },
+            ]
+        },
+        {
+            question: "Mr. Johnson presents with chronic itching all over his body, particularly on his arms, legs, and back. The itching has been ongoing for several months and is affecting his quality of life. He describes the itch as bothersome and constant, leading to sleep disturbances and irritability. There are no visible skin lesions or rash noted upon examination. Medical History:  Mr. Johnson has a history of hypertension and osteoarthritis. He is on medication for both conditions and denies any recent changes in his medications. There is no known history of allergies or skin conditions. His past medical history is significant for a mild case of eczema in his.What will be the diagnosis and treatment",
+            answers: [
+                { text: "senile pruritis ; Emollients & topical corticosteroids", correct: true },
+                { text: "Leprosy ; dapsone", correct: false },
+                { text: "syphillis ; rifampicin", correct: false },
+                { text: "Multiform exudative erythmea; hydrocortisone cortisone", correct: false },
+                { text: "Dermophagism", correct: false },
+            ]
+        },
+        {
+            question: "Specify the pathohistological sign of pemphigus",
+            answers: [
+                { text: "acantolysis", correct: true },
+                { text: "Hyperkeratosis", correct: false },
+                { text: "acanthosis", correct: false },
+                { text: "spongiosis", correct: false },
+                { text: "parakeratosis", correct: false },
+            ]
+        },
+        {
+            question: "Name the pathological cells in pemphigus:",
+            answers: [
+                { text: "Tzanck cells", correct: true },
+                { text: "LE cells", correct: false },
+                { text: "Merkel cells", correct: false },
+                { text: "spiny cells", correct: false },
+                { text: "Meissner cells", correct: false },
+            ]
+        },
+        {
+            question: "Name the element in the vegetative form of pemphigus:",
+            answers: [
+                { text: "erosion", correct: true },
+                { text: "nodule", correct: false },
+                { text: "ulcer", correct: false },
+                { text: "abrasion", correct: false },
+                { text: "Lichenification", correct: false },
+            ]
+        },
+        {
+            question: "Specify with which disease bullous pemphigoid should be differentiated:",
+            answers: [
+                { text: "Duhring's dermatitis", correct: true },
+                { text: "eczema", correct: false },
+                { text: "neurodermatitis", correct: false },
+                { text: "scabies", correct: false },
+                { text: "psoriasis", correct: false },
+            ]
+        },
+        {
+            question: "Specify the clinical sign in Duhring's dermatitis:",
+            answers: [
+                { text: "polymorphic symmetrical rashes", correct: true },
+                { text: "scarring", correct: false },
+                { text: "spots", correct: false },
+                { text: "monomorphic asymmetrical rashes", correct: false },
+                { text: "vegetations", correct: false },
+            ]
+        },
+        {
+            question: "select the first-line treatment for mild to moderate atopic dermatitis in children and adults?",
+            answers: [
+                { text: "Topical corticosteroids", correct: true },
+                { text: "Oral antihistamines", correct: false },
+                { text: "Topical calcineurin inhibitors", correct: false },
+                { text: "Oral corticosteroids", correct: false },
+                { text: "Phototherapy", correct: false },
+            ]
+        },
+        {
+            question: "Determine the pathomorphologic sign of the Nicolsky symptom in pemphigus vulgaris:",
+            answers: [
+                { text: "acantholysis", correct: true },
+                { text: "parakeratosis", correct: false },
+                { text: "acanthosis", correct: false },
+                { text: "spongiosis", correct: false },
+                { text: "granulosis", correct: false },
+            ]
+        },
+        {
+            question: "Determine the condition of the skin around the blisters in pemphigus:",
+            answers: [
+                { text: "not changed", correct: true },
+                { text: "hyperemic", correct: false },
+                { text: "infiltrated", correct: false },
+                { text: "tinged with purple", correct: false },
+                { text: "has a pronounced skin pattern", correct: false },
+            ]
+        },
+        {
+            question: "Determine in which disease corticosteroid therapy should be used:",
+            answers: [
+                { text: "true pemphigus", correct: true },
+                { text: "herpes simplex", correct: false },
+                { text: "Rubromycosis", correct: false },
+                { text: "candidiasis", correct: false },
+                { text: "furunculosis", correct: false },
+            ]
+        },
+        {
+            question: "Determine what happens to the blister in Nikolsky's symptom:",
+            answers: [
+                { text: "increases in size", correct: true },
+                { text: "burst", correct: false },
+                { text: "crusts over", correct: false },
+                { text: "painful", correct: false },
+                { text: "bleeds", correct: false },
+            ]
+        },
+        {
+            question: "Determine in which disease Nikolsky's symptom is sharply positive:",
+            answers: [
+                { text: "pemphigus", correct: true },
+                { text: "neurodermatitis", correct: false },
+                { text: "Duhring's dermatitis", correct: false },
+                { text: "eczema", correct: false },
+                { text: "psoriasis", correct: false },
+            ]
+        },
+        {
+            question: "A patient presents with a sharply demarcated, erythematous, and edematous rash with vesicles and weeping, following exposure to a new skincare product. choose the correct   diagnosis?",
+            answers: [
+                { text: "Allergic contact dermatitis", correct: true },
+                { text: "Irritant contact dermatitis", correct: false },
+                { text: "Atopic dermatitis", correct: false },
+                { text: "Seborrheic dermatitis", correct: false },
+                { text: "Nummular dermatitis", correct: false },
+            ]
+        },
+        {
+            question: "Select a disease from the collagenosis group:",
+            answers: [
+                { text: "scleroderma", correct: true },
+                { text: "rosacea", correct: false },
+                { text: "psoriasis", correct: false },
+                { text: "scrofuloderma", correct: false },
+                { text: "acne", correct: false },
+            ]
+        },
+        {
+            question: "State the pathohistological phenomena responsible for the Benier-Meschersky symptom in lupus erythematosus:",
+            answers: [
+                { text: "follicular hyperkeratosis", correct: true },
+                { text: "acantholysis", correct: false },
+                { text: "granulosis", correct: false },
+                { text: "acanthosis", correct: false },
+                { text: "parakeratosis", correct: false },
+            ]
+        },
+        {
+            question: "Select the definition of the symptom \"lady's heel\":",
+            answers: [
+                { text: "the presence of horny spines under the scales", correct: true },
+                { text: "the presence of horny spines on the surface of the scales", correct: false },
+                { text: "a pattern on the skin that resembles a heel", correct: false },
+                { text: "a sensation of pain when the scales are removed", correct: false },
+                { text: "thickening of the skin", correct: false },
+            ]
+        },
+        {
+            question: "Specify what is a symptom of Benier-Meschersky :",
+            answers: [
+                { text: "painfulness when the scales are removed", correct: true },
+                { text: "the presence of spikes under the scales", correct: false },
+                { text: "the presence of desquamation in the centre of the lesion", correct: false },
+                { text: "the appearance of infiltrative plaques", correct: false },
+                { text: "lichenification of the skin", correct: false },
+            ]
+        },
+        {
+            question: "Specify the localisation of discoid lupus erythematosus:",
+            answers: [
+                { text: "face", correct: true },
+                { text: "back", correct: false },
+                { text: "neck", correct: false },
+                { text: "scalp", correct: false },
+                { text: "palms and feet", correct: false },
+            ]
+        },
+        {
+            question: "Which of the following is NOT a typical characteristic of psoriasis?",
+            answers: [
+                { text: "Involvement of only the palms and soles", correct: true },
+                { text: "Silvery scales", correct: false },
+                { text: "Well-demarcated erythematous plaques", correct: false },
+                { text: "Pustules filled with clear fluid", correct: false },
+                { text: "Auspitz sign (pinpoint bleeding upon removal of scales)", correct: false },
+            ]
+        },
+        {
+            question: "Name the primary  symptom of discoid lupus erythematosus:",
+            answers: [
+                { text: "erythema", correct: true },
+                { text: "papular infiltration", correct: false },
+                { text: "vegetation", correct: false },
+                { text: "mottling", correct: false },
+                { text: "follicular pustule", correct: false },
+            ]
+        },
+        {
+            question: "Determine what causes the Benier-Meschersky symptom in discoid lupus erythematosus:",
+            answers: [
+                { text: "densely seated scales", correct: true },
+                { text: "vasodilatation", correct: false },
+                { text: "exudation", correct: false },
+                { text: "atrophy", correct: false },
+                { text: "hyperkeratosis", correct: false },
+            ]
+        },
+        {
+            question: "Determine the stage of development of scleroderma:",
+            answers: [
+                { text: "edema", correct: true },
+                { text: "infiltration", correct: false },
+                { text: "erosion", correct: false },
+                { text: "vegetation", correct: false },
+                { text: "lichenification", correct: false },
+            ]
+        },
+        {
+            question: "State the clinical sign of limited scleroderma:",
+            answers: [
+                { text: "a rounded spot with a lilac rim around the periphery", correct: true },
+                { text: "multiple white patches", correct: false },
+                { text: "erythematous spots", correct: false },
+                { text: "spot with desquamation", correct: false },
+                { text: "nodule", correct: false },
+            ]
+        },
+        {
+            question: "Prescribe treatment for scleroderma:",
+            answers: [
+                { text: "hyaluronidase", correct: true },
+                { text: "analgesics", correct: false },
+                { text: "antihistamines", correct: false },
+                { text: "corticosteroids", correct: false },
+                { text: "antibiotics", correct: false },
+            ]
+        },
+        {
+            question: "Choose the following  characteristic feature of pityriasis rosea lesions?",
+            answers: [
+                { text: "Wickham striae", correct: true },
+                { text: "Central umbilication", correct: false },
+                { text: "Targetoid appearance", correct: false },
+                { text: "Koebner phenomenon", correct: false },
+                { text: "Psoriasiform scales", correct: false },
+            ]
+        },
+        {
+            question: "Select the most common age group affected by pityriasis rosea?",
+            answers: [
+                { text: "Adolescents and young adults", correct: true },
+                { text: "Infants", correct: false },
+                { text: "Middle-aged adults", correct: false },
+                { text: "Elderly", correct: false },
+                { text: "All age groups are equally affected", correct: false },
+            ]
+        },
+        {
+            question: "Name the disease with which you would differentiate seborrhoeic eczema",
+            answers: [
+                { text: "seborrheic dermatitis", correct: true },
+                { text: "Inguinal epidermophitia", correct: false },
+                { text: "syphilitic alopecia", correct: false },
+                { text: "neurodermatitis", correct: false },
+                { text: "Scabies", correct: false },
+            ]
+        },
+        {
+            question: "Indicate the background of which disease seborrheic eczema occurs:",
+            answers: [
+                { text: "Fat seborrhea", correct: true },
+                { text: "Microbial Eczema", correct: false },
+                { text: "idiopathic eczema", correct: false },
+                { text: "Seborrheic baldness", correct: false },
+                { text: "Obesity", correct: false },
+            ]
+        },
+        {
+            question: "Specify the morphological feature of seborrhoeic eczema",
+            answers: [
+                { text: "erythematous stains with fatty scales", correct: true },
+                { text: "papulovesicles with sulfur-purulent crusts", correct: false },
+                { text: "Papulovesicles with serous contents", correct: false },
+                { text: "erosion with serous crusts", correct: false },
+                { text: "Ulcers", correct: false },
+            ]
+        },
+        {
+            question: "Specify the typical localisation of seborrhoea:",
+            answers: [
+                { text: "face, scalp, back, chest", correct: true },
+                { text: "palms and soles", correct: false },
+                { text: "upper and lower extremities", correct: false },
+                { text: "external genitalia", correct: false },
+                { text: "inguinal area, buttocks", correct: false },
+            ]
+        },
+        {
+            question: "Choose among  the following  commonly used topical treatment for localized lichen planus?",
+            answers: [
+                { text: "Topical calcineurin inhibitors", correct: true },
+                { text: "Oral corticosteroids", correct: false },
+                { text: "Systemic retinoids", correct: false },
+                { text: "Oral antifungal agents", correct: false },
+                { text: "Oral antihistamines", correct: false },
+            ]
+        },
+        {
+            question: "Specify the localisation of seborrheic eczema",
+            answers: [
+                { text: "skin of head", correct: true },
+                { text: "nails", correct: false },
+                { text: "soles", correct: false },
+                { text: "palms", correct: false },
+                { text: "sex organs", correct: false },
+            ]
+        },
+        {
+            question: "Name the disease with which you would differentiate seborrhoeic eczema",
+            answers: [
+                { text: "seborrheic dermatitis", correct: true },
+                { text: "Inguinal epidermophitia", correct: false },
+                { text: "syphilitic alopecia", correct: false },
+                { text: "neurodermatitis", correct: false },
+                { text: "Scabies", correct: false },
+            ]
+        },
+        {
+            question: "Specify the common localisation of seborrhoeic eczema:",
+            answers: [
+                { text: "sebaceous glands", correct: true },
+                { text: "sweat glands", correct: false },
+                { text: "hair", correct: false },
+                { text: "nails", correct: false },
+                { text: "palms and soles", correct: false },
+            ]
+        },
+        {
+            question: "Specify the morphological feature of seborrhoeic eczema",
+            answers: [
+                { text: "erythematous stains with fatty scales", correct: true },
+                { text: "papulovesicles with sulfur-purulent crusts", correct: false },
+                { text: "Papulovesicles with serous contents", correct: false },
+                { text: "erosion with serous crusts", correct: false },
+                { text: "Ulcers", correct: false },
+            ]
+        },
+        {
+            question: "Specify the typical localisation of seborrhoea:",
+            answers: [
+                { text: "face, scalp, back, chest", correct: true },
+                { text: "palms and soles", correct: false },
+                { text: "upper and lower extremities", correct: false },
+                { text: "external genitalia", correct: false },
+                { text: "inguinal area, buttocks", correct: false },
+            ]
+        },
+        {
+            question: "Specify the primary morphological element of herpes simplex virus:",
+            answers: [
+                { text: "vesicle", correct: true },
+                { text: "pustule", correct: false },
+                { text: "papule", correct: false },
+                { text: "nodule", correct: false },
+                { text: "spot", correct: false },
+            ]
+        },
+        {
+            question: "Specify the clinical signs in herpes simplex:",
+            answers: [
+                { text: "a burning sensation", correct: true },
+                { text: "a feeling of numbness", correct: false },
+                { text: "an increase in blood pressure", correct: false },
+                { text: "dysuria", correct: false },
+                { text: "diarrhoea", correct: false },
+            ]
+        },
+        {
+            question: "Specify the characteristics of the herpes zoster rash:",
+            answers: [
+                { text: "located along nerve endings", correct: true },
+                { text: "vesicles are not tense", correct: false },
+                { text: "blisters are flaccid", correct: false },
+                { text: "rashes are covered with scales", correct: false },
+                { text: "no rash", correct: false },
+            ]
+        },
+        {
+            question: "Name the group of diseases to which herpes zoster belongs:",
+            answers: [
+                { text: "viral", correct: true },
+                { text: "bacterial", correct: false },
+                { text: "fungal", correct: false },
+                { text: "autoimmune", correct: false },
+                { text: "genetic", correct: false },
+            ]
+        },
+        {
+            question: "Name the clinical form of herpes zoster:",
+            answers: [
+                { text: "haemorrhagic", correct: true },
+                { text: "hypertrophic", correct: false },
+                { text: "ring-shaped", correct: false },
+                { text: "Nummular", correct: false },
+                { text: "lenticular", correct: false },
+            ]
+        },
+        {
+            question: "Specify the clinical form of herpes zoster:",
+            answers: [
+                { text: "necrotic", correct: true },
+                { text: "papular", correct: false },
+                { text: "lichenoid", correct: false },
+                { text: "erythrodermic", correct: false },
+                { text: "scaly", correct: false },
+            ]
+        },
+        {
+            question: "Specify the differential diagnosis of herpes simplex with which disease:",
+            answers: [
+                { text: "pemphigus vulgaris", correct: true },
+                { text: "urticaria", correct: false },
+                { text: "Duhring's dermatitis", correct: false },
+                { text: "flat warts", correct: false },
+                { text: "molluscum contagiosum", correct: false },
+            ]
+        },
+        {
+            question: "At  a  dermatologist's  appointment,  a  30-year-old  man  complained  of  recurring  painful rashes on the red border of the lips, accompanied by burning. From the anamnesis: exacerbations of the  disease  occur  more  than  6  times  a  year.  Locally:  on  the  red  border  of  the  lips  against  the background of erythema and edema, there are grouped vesicular elements with serous contents, individual elements form surface erosions covered with crusts. Which of the following diagnoses is the most likely?",
+            answers: [
+                { text: "Labial herpes", correct: true },
+                { text: "Viral warts", correct: false },
+                { text: "Streptococcal impetigo", correct: false },
+                { text: "Allergic dermatitis", correct: false },
+                { text: "Candidal stomatitis", correct: false },
+            ]
+        },
+        {
+            question: "A man, 30 years old, consulted a doctor with complaints of frequent urination. From the anamnesis:  a  week  ago  there  was  an  unprotected  intercourse  with  an  unfamiliar  woman. Objectively: hyperemia, edema of the mucous membrane of the external  opening of the urethra, infiltration  of  the  urethral  sponges,  mucous  discharge.  M.  Genitalium  was  detected  by  PCR diagnostics. Which of the following diagnoses is the most likely?",
+            answers: [
+                { text: "Mycoplasma infection", correct: true },
+                { text: "Chlamydial infection", correct: false },
+                { text: "Trichomonas infection", correct: false },
+                { text: "Gonorrheal infection", correct: false },
+                { text: "Genitourinary candidiasis", correct: false },
+            ]
+        },
+        {
+            question: "An 18-year-old girl came to the doctor's office with complaints of rashes in the genital area, accompanied by soreness, burning, itching. From the anamnesis: she had ARVI a week ago, she did not  use  any  medications.  Locally:  against  the  background  of  erythema  and  edema,  there  are grouped vesicular elements with serous and serous-purulent contents, crusts and ulceration. Which of the following is the most likely diagnosis?",
+            answers: [
+                { text: "Genital herpes", correct: true },
+                { text: "herpes zoster", correct: false },
+                { text: "Viral warts", correct: false },
+                { text: "Molluscum contagiosum", correct: false },
+                { text: "Ecthyma ordinary", correct: false },
+            ]
+        },
+        {
+            question: "A mother with a 13-year-old child turned to a dermatologist with complaints of rashes on her arms. From the anamnesis: noticed a rash a week ago. Objectively: on the dorsum of the hands, hemispherical, dense nodules, rising above the skin, 3 to 5 mm in diameter, with a rough granular surface, having irregular outlines. Which of the preliminary diagnoses is the most likely?",
+            answers: [
+                { text: "Youthful warts", correct: true },
+                { text: "Molluscum contagiosum", correct: false },
+                { text: "Contact dermatitis", correct: false },
+                { text: "Staphylococcal impetigo", correct: false },
+                { text: "Pigmented nevus", correct: false },
+            ]
+        },
+        {
+            question: "A 45-year-old woman consulted a doctor with complaints of severe dull pains and rashes in the  back,  general  malaise.  Anamnesis:  a  week  before  the  rash,  she  had  a  sore  throat,  low-grade fever,  pain  and  burning  along  the  intercostal  nerves.  Objectively:  unilateral  lesion  along  the intercostal nerves on the right - grouped vesicles are linearly located, with serous-purulent contents on an erythematous, slightly edematous base. Which of the following diagnoses is the most likely?",
+            answers: [
+                { text: "Herpes zoster", correct: true },
+                { text: "Herpes simplex", correct: false },
+                { text: "Pemphigus vulgaris", correct: false },
+                { text: "Molluscum contagiosum", correct: false },
+                { text: "Allergic dermatitis", correct: false },
+            ]
+        },
+        {
+            question: "Specify the causative agent of syphilis?",
+            answers: [
+                { text: "Treponema pallidum", correct: true },
+                { text: "Neisseria gonorrhoeae", correct: false },
+                { text: "Chlamydia trachomatis", correct: false },
+                { text: "Helicobacter pylori", correct: false },
+                { text: "Candida albicans", correct: false },
+            ]
+        },
+        {
+            question: "Specify the primary route of transmission of the causative agent of syphilis?",
+            answers: [
+                { text: "sexual", correct: true },
+                { text: "household contact", correct: false },
+                { text: "transmissive", correct: false },
+                { text: "transfusion", correct: false },
+                { text: "transplacental", correct: false },
+            ]
+        },
+        {
+            question: "A 24-year-old patient came to the FMC for an appointment with a doctor complaining of the appearance of a sore on the glans penis, which has already lasted for 10 days. From the anamnesis, it was possible to find out that he had sexual intercourse with an unfamiliar woman. Objectively: in the area of ​​the coronal groove there is a round ulcer, the edges are even, the bottom is smooth, the size is 1.5x2.0 cm. Pale treponema was found in the material taken from the ulcer. DAC is negative. What is the most likely diagnosis?",
+            answers: [
+                { text: "Syphilis primary seronegative", correct: true },
+                { text: "Syphilis primary seropositive", correct: false },
+                { text: "Syphilis secondary fresh", correct: false },
+                { text: "Syphilis secondary recurrent", correct: false },
+                { text: "Syphilis tertiary active", correct: false },
+            ]
+        },
+        {
+            question: "A 24-year-old patient turned to a dermatovenerologist in a private clinic with complaints of ulcers on the glans penis, as well as swelling in the right iliac region. Anamnesis revealed that he had sexual contact with one woman for 2 months. Objectively: there is a sore on the head of the penis, measuring 1x1 cm, the edges are even, the bottom is varnished. The right lymph node in the iliac region is enlarged to a walnut, painless and dense in consistency. DAC (++++) is sharply positive. What is the most likely diagnosis?",
+            answers: [
+                { text: "Syphilis primary seropositive", correct: true },
+                { text: "Syphilis secondary recurrent", correct: false },
+                { text: "Syphilis primary seronegative", correct: false },
+                { text: "Syphilis secondary fresh", correct: false },
+                { text: "Syphilis tertiary active", correct: false },
+            ]
+        },
+        {
+            question: "A 26-year-old patient consulted a dermatovenerologist with complaints of hair loss and the appearance of white spots on the back of the neck. Before that, I noted rashes on the skin of the trunk, which, as suddenly appeared, just as suddenly disappeared. Not married, promiscuous in sexual contacts. DAC (++++) is sharply positive. Objectively: there is a small focal hair loss, depigmented spots on the back of the neck, similar to a specific leukoderma. What diagnosis can be suspected in the patient?",
+            answers: [
+                { text: "Syphilis secondary recurrent", correct: true },
+                { text: "Syphilis primary seronegative", correct: false },
+                { text: "Syphilis secondary fresh", correct: false },
+                { text: "Syphilis tertiary active", correct: false },
+                { text: "Syphilis late latent", correct: false },
+            ]
+        },
+        {
+            question: "During a preventive examination in a antenatal clinic, in a pregnant woman at a period of 3 months, the DAC is sharply positive (++++). On examination: the skin is clean. An ulcer was found on the cervix, measuring 1.5x1.5 cm. Inguinal lymph nodes are enlarged on both sides. The husband was diagnosed with secondary recurrent syphilis. What is the most likely diagnosis?",
+            answers: [
+                { text: "Syphilis primary seropositive", correct: true },
+                { text: "Syphilis primary seronegative", correct: false },
+                { text: "Secondary early syphilis", correct: false },
+                { text: "Syphilis secondary late", correct: false },
+                { text: "Syphilis late latent", correct: false },
+            ]
+        },
+        {
+            question: "During a preventive examination in a antenatal clinic, in a pregnant woman at a period of 3 months, the DAC is sharply positive (++++). On examination: the skin is clean. An ulcer was found on the cervix, measuring 1.5x1.5 cm. Inguinal lymph nodes are enlarged on both sides. The husband was diagnosed with secondary recurrent syphilis. What is the most likely diagnosis?",
+            answers: [
+                { text: "Syphilis primary seropositive", correct: true },
+                { text: "Syphilis primary seronegative", correct: false },
+                { text: "Secondary early syphilis", correct: false },
+                { text: "Syphilis secondary late", correct: false },
+                { text: "Syphilis late latent", correct: false },
+            ]
+        },
+        {
+            question: "A 26-year-old patient consulted a doctor at the FMC for a rash in the anus. He thought hemorrhoids, treated himself with various ointments, applied ichthyol suppositories. Minor improvements. Before that, he noticed the appearance of reddish spots on the skin of the trunk. Objectively: there are single, numbered papules on the skin of the abdomen and back. De-pigmentation with a marble tint is noticeable on the skin of the neck. In the area of ​​the anus, extensive wide condylomas. Not married, not sexually choosy. DAC is sharply positive. Which of the following diagnoses is the most likely?",
+            answers: [
+                { text: "Syphilis secondary late", correct: true },
+                { text: "Syphilis latent", correct: false },
+                { text: "Syphilis primary seronegative", correct: false },
+                { text: "Syphilis tertiary active", correct: false },
+                { text: "Syphilis secondary early syphilis", correct: false },
+            ]
+        },
+        {
+            question: "Specify the method of diagnosis of primary syphilis?",
+            answers: [
+                { text: "Dark-field microscopy", correct: true },
+                { text: "General blood test", correct: false },
+                { text: "Ultrasound examination of lymph nodes", correct: false },
+                { text: "Lymph node biopsy", correct: false },
+                { text: "Histological examination of the biomaterial", correct: false },
+            ]
+        },
+        {
+            question: "A 22-year-old patient turned to a dermatovenerologist with complaints of rashes in the area of ​​the skin of the palms and soles. Not socially adapted, not picky about sexual relations. Objectively: on the skin of the palms and soles there are papules of rounded outlines measuring 1.5x1.5 cm, depigmented spots in the back of the neck. What laboratory tests need to be performed to establish a diagnosis?",
+            answers: [
+                { text: "Serological", correct: true },
+                { text: "Histological", correct: false },
+                { text: "Biochemical", correct: false },
+                { text: "Cytological", correct: false },
+                { text: "Bacterioscopic", correct: false },
+            ]
+        },
+        {
+            question: "A 23-year-old female patient consulted a doctor with complaints of discomfort when swallowing and enlarged tonsils. From the anamnesis it was found out that he leads a promiscuous sex life. Objectively: the tonsil is larger on the right, copper-red, swollen. The submandibular lymph node on the right is enlarged to the size of a bean. What laboratory tests are required to clarify the diagnosis?",
+            answers: [
+                { text: "Serological", correct: true },
+                { text: "Bacteriological", correct: false },
+                { text: "Histological", correct: false },
+                { text: "Cytological", correct: false },
+                { text: "Biochemical", correct: false },
+            ]
+        },
+        {
+            question: "A 25-year-old patient came to the doctor's office with complaints of swelling and pain in the glans penis, which appeared two days ago. He is married and has a child. Often on a business trip for work. Objectively: the skin of the glans penis is hyperemic, edematous, the ulcer is in the epithelial stage. Inguinal lymph nodes are enlarged on both sides. DAC is negative. Pale treponema was found in the material from the ulcer. Diagnosed with primary seronegative syphilis. What antibiotic is recommended in the treatment of this patient?",
+            answers: [
+                { text: "Doxycycline", correct: true },
+                { text: "Spectinomycin", correct: false },
+                { text: "Levomycentin", correct: false },
+                { text: "Tsiprobay", correct: false },
+                { text: "Gentamicin", correct: false },
+            ]
+        },
+        {
+            question: "In the FMC, a 25-year-old woman turned to a dermatovenerologist who had repeated sexual contact with a man she knew who was diagnosed with syphilis. The last contact was 2 months ago. Objectively: the skin and visible mucous membranes are free of rashes. The inguinal lymph nodes are not enlarged. Serological tests are negative. Preventive treatment was prescribed. What antibiotic is most indicated in this case?",
+            answers: [
+                { text: "Extensillin", correct: true },
+                { text: "Spectinomycin", correct: false },
+                { text: "Levomycentin", correct: false },
+                { text: "Gentamicin", correct: false },
+                { text: "Ciprofloxacin", correct: false },
+            ]
+        },
+        {
+            question: "A 22-year-old patient turned to a dermatovenerologist with complaints of rashes in the area of ​​the skin of the palms and soles. Not socially adapted, not picky about sexual relations. Objectively: on the skin of the palms and soles there are papules of rounded outlines measuring 1.5x1.5 cm, depigmented spots in the back of the neck. What laboratory tests need to be performed to establish a diagnosis?",
+            answers: [
+                { text: "Serological", correct: true },
+                { text: "Histological", correct: false },
+                { text: "Biochemical", correct: false },
+                { text: "Cytological", correct: false },
+                { text: "Bacterioscopic", correct: false },
+            ]
+        },
+        {
+            question: "A 23-year-old female patient consulted a doctor with complaints of discomfort when swallowing and enlarged tonsils. From the anamnesis it was found out that he leads a promiscuous sex life. Objectively: the tonsil is larger on the right, copper-red, swollen. The submandibular lymph node on the right is enlarged to the size of a bean. What laboratory tests are required to clarify the diagnosis?",
+            answers: [
+                { text: "Serological", correct: true },
+                { text: "Bacteriological", correct: false },
+                { text: "Histological", correct: false },
+                { text: "Cytological", correct: false },
+                { text: "Biochemical", correct: false },
+            ]
+        },
+        {
+            question: "Patient A., 49 years old, came to the FMC to a dermatovenerologist with complaints of an unhealed ulcer of the right leg, which appeared about two months ago. Earlier, before the appearance of the ulcer, he noticed rashes on the trunk, which periodically appeared and disappeared. Objectively: an ulcer is visible 2 - 3 cm in size, the discharge is insignificant, sticky, viscous in nature, similar to gum arabic (juice of an African tree). DAC is weakly positive (++). What diagnosis can you think of?",
+            answers: [
+                { text: "Syphilis tertiary", correct: true },
+                { text: "Syphilis secondary", correct: false },
+                { text: "Syphilis primary", correct: false },
+                { text: "Syphilis unspecified", correct: false },
+                { text: "Syphilis early", correct: false },
+            ]
+        },
+        {
+            question: "Indicate at what age tertiary syphilis is diagnosed",
+            answers: [
+                { text: "4-5 years", correct: true },
+                { text: "1-2 months", correct: false },
+                { text: "1-2 years", correct: false },
+                { text: "1-3 days", correct: false },
+                { text: "15-20 years", correct: false },
+            ]
+        },
+        {
+            question: "Specify the primary morphological element in tertiary syphilis:",
+            answers: [
+                { text: "tuberclum", correct: true },
+                { text: "spot", correct: false },
+                { text: "papulae", correct: false },
+                { text: "roseola", correct: false },
+                { text: "pustulae", correct: false },
+            ]
+        },
+        {
+            question: "A child at the age of 4 months was admitted to the children's department with rashes on the skin of the trunk and limbs. The mother was diagnosed with secondary fresh syphilis. Objectively: on the skin of the limbs and buttocks there is a maculopapular rash, weeping papules around the mouth and anus. DAC is sharply positive. What is the most appropriate preliminary diagnosis?",
+            answers: [
+                { text: "Syphilis congenital early", correct: true },
+                { text: "Syphilis congenital late", correct: false },
+                { text: "Syphilis secondary recurrent", correct: false },
+                { text: "Syphilis secondary fresh", correct: false },
+                { text: "Syphilis primary seropositive", correct: false },
+            ]
+        },
+        {
+            question: "Specify the period of time from the time of infection after which early latent syphilis can be diagnosed :",
+            answers: [
+                { text: "less than one year", correct: true },
+                { text: "four weeks", correct: false },
+                { text: "more than two years", correct: false },
+                { text: "more than three years", correct: false },
+                { text: "more than 4 years", correct: false },
+            ]
+        },
+        {
+            question: "Specify the clinical symptom of early congenital syphilis in children aged 1 to 2 years:",
+            answers: [
+                { text: "broad condylomas", correct: true },
+                { text: "diffuse papular infiltration of Gohsinger's papules", correct: false },
+                { text: "syphilitic vesicles", correct: false },
+                { text: "syphilitic rhinitis", correct: false },
+                { text: "parenchymatous keratitis", correct: false },
+            ]
+        },
+        {
+            question: "Determine the sign of bone involvement in early congenital syphilis:",
+            answers: [
+                { text: "Osteochondritis", correct: true },
+                { text: "osteomyelitis", correct: false },
+                { text: "periostitis", correct: false },
+                { text: "monoarthritis", correct: false },
+                { text: "Polyarthritis", correct: false },
+            ]
+        },
+        {
+            question: "Specify the infectious biomaterial from a pregnant woman with syphilis:",
+            answers: [
+                { text: "breast milk", correct: true },
+                { text: "urine", correct: false },
+                { text: "sweat", correct: false },
+                { text: "faeces", correct: false },
+                { text: "Tears", correct: false },
+            ]
+        },
+        {
+            question: "Identify the symptom of early congenital syphilis:",
+            answers: [
+                { text: "syphilitic rhinitis", correct: true },
+                { text: "a patchy rash of the skin of the torso", correct: false },
+                { text: "papular rash of the skin of the trunk", correct: false },
+                { text: "syphilitic alopecia", correct: false },
+                { text: "syphilitic vesicles", correct: false },
+            ]
+        },
+        {
+            question: "Specify a reliable sign of fetal syphilis:",
+            answers: [
+                { text: "osteoperiostitis", correct: true },
+                { text: "myocarditis", correct: false },
+                { text: "hepatitis", correct: false },
+                { text: "pneumonia", correct: false },
+                { text: "meningitis", correct: false },
+            ]
+        },
+        {
+            question: "Specify the diagnostic examination in the recognition of aortic aneurysm of syphilitic genesis:",
+            answers: [
+                { text: "Radiological", correct: true },
+                { text: "auscultatory", correct: false },
+                { text: "percussion", correct: false },
+                { text: "serological", correct: false },
+                { text: "clinical", correct: false },
+            ]
+        },
+        {
+            question: "Provide a definition of non-sterile infectious immunity in syphilis:",
+            answers: [
+                { text: "resistance to new infection as long as the pathogen remains in the patient's organism", correct: true },
+                { text: "the inability of a person who has been cured of syphilis to become infected with it again", correct: false },
+                { text: "the possibility of a syphilis patient to be re-infected by additional exposure to the causative organism", correct: false },
+                { text: "more severe course in case of repeated infection", correct: false },
+                { text: "persistent immunity", correct: false },
+            ]
+        },
+        {
+            question: "Specify which mucous membrane lesions are most characteristic of congenital syphilis of infancy:",
+            answers: [
+                { text: "nose", correct: true },
+                { text: "mouth", correct: false },
+                { text: "pharynx", correct: false },
+                { text: "genitalia", correct: false },
+                { text: "Conjunctiva", correct: false },
+            ]
+        },
+        {
+            question: "Specify the favourite localisation of rashes in syphilitic vesicular vesicles",
+            answers: [
+                { text: "palms and soles", correct: true },
+                { text: "seborrhoeic area", correct: false },
+                { text: "trunk", correct: false },
+                { text: "genitalia", correct: false },
+                { text: "everywhere on the skin cover", correct: false },
+            ]
+        },
+        {
+            question: "Specify the infectious form of syphilis:",
+            answers: [
+                { text: "early latent", correct: true },
+                { text: "late latent", correct: false },
+                { text: "tertiary active", correct: false },
+                { text: "tertiary latent", correct: false },
+                { text: "Neurosyphilis", correct: false },
+            ]
+        },
+        {
+            question: "Specify in which period of pregnancy changes in the internal organs of the foetus caused by syphilitic infection are observed:",
+            answers: [
+                { text: "5th month", correct: true },
+                { text: "2-3 months", correct: false },
+                { text: "7th month", correct: false },
+                { text: "6th month", correct: false },
+                { text: "Month 8", correct: false },
+            ]
+        },
+        {
+            question: "Patient G., aged 52 years, came to the polyclinic to see a dermatologist about rashes in the left hip joint, which appeared 3-4 weeks ago. Subjectively: she was bothered by pains in her legs. Previously she had noticed rashes on the skin of the trunk, palms and soles. According to the patient, they spontaneously appeared and disappeared. Objective: on the inner surface of the left thigh there are grouped bumps dense to the touch, the size of a pea. Presumptive diagnosis: tubercle syphilis. What investigation should be performed to clarify the diagnosis?",
+            answers: [
+                { text: "Serological", correct: true },
+                { text: "Histological", correct: false },
+                { text: "Bacteriological", correct: false },
+                { text: "Biochemical", correct: false },
+                { text: "Bacterioscopic", correct: false },
+            ]
+        },
+        {
+            question: "Specify the causative agent of gonorrhea",
+            answers: [
+                { text: "gonococcus", correct: true },
+                { text: "Trichomonas vaginalis", correct: false },
+                { text: "staphylococcus", correct: false },
+                { text: "streptococcus", correct: false },
+                { text: "Gardnerella vaginalis", correct: false },
+            ]
+        },
+        {
+            question: "A 30-year-old woman turned to a venereologist with complaints of profuse leucorrhoea with an unpleasant odor that arose after an acute respiratory infection. Previously, such pathological vaginal discharge did not bother the patient. The result of microscopy of a vaginal smear stained according to Gram: leukocytes - 8-10, moderate microflora, single lactobacilli, “key cells” were found. Which of the following preliminary diagnoses is the most likely?",
+            answers: [
+                { text: "Bacterial vaginosis", correct: true },
+                { text: "Trichomonas vaginitis", correct: false },
+                { text: "Candidal vaginitis", correct: false },
+                { text: "Gonorrheal endocervicitis", correct: false },
+                { text: "Chlamydial cervicitis", correct: false },
+            ]
+        },
+        {
+            question: "A woman of 27 years old, suffering from secondary infertility, complains of profuse leucorrhoea, periodically frequent urination. When viewed in the mirrors, the cervix is ​​eroded, hyperemic, mucopurulent discharge from the cervical canal. The body of the uterus and appendages are not enlarged, painless on palpation. The vaults are free. In a smear up to 40-50 leukocytes, abundant coccal flora, key cells, gardnerella were found, Trichomonas and diplococci were not found. Which of the following preliminary diagnoses is the most likely?",
+            answers: [
+                { text: "Bacterial vaginosis", correct: true },
+                { text: "Candidal vaginitis", correct: false },
+                { text: "Gonorrheal endocervicitis", correct: false },
+                { text: "Trichomonas vaginitis", correct: false },
+                { text: "Chlamydial cervicitis", correct: false },
+            ]
+        },
+        {
+            question: "Name the complication of male gonorrhoea characterised by dense swollen masses on the urethral surface of the penis:",
+            answers: [
+                { text: "lymphangitis", correct: true },
+                { text: "cavernitis", correct: false },
+                { text: "colliculitis", correct: false },
+                { text: "stricture", correct: false },
+                { text: "Epididymitis", correct: false },
+            ]
+        },
+        {
+            question: "Specify the incorrect symptom of trichomoniasis in women:",
+            answers: [
+                { text: "acute condylomas on the large and small labia and around the anus.", correct: true },
+                { text: "hyperaemia and swelling of the vulvar and vaginal mucosa;", correct: false },
+                { text: "yellow-green liquid frothy discharge from the vagina with an unpleasant odour;", correct: false },
+                { text: "erosive and ulcerative lesions of the mucous membrane of the external genitalia and/or skin of the inner surface of the thighs;", correct: false },
+                { text: "petechial haemorrhages on the mucous membrane of the vaginal part of the cervix (\"strawberry\" cervix);", correct: false },
+            ]
+        },
+        {
+            question: "Specify the incorrect complication of trichomoniasis in women:",
+            answers: [
+                { text: "cervical cancer.", correct: true },
+                { text: "salpingoophoritis.", correct: false },
+                { text: "endometritis", correct: false },
+                { text: "pelvio-peritonitis.", correct: false },
+                { text: "cystitis", correct: false },
+            ]
+        },
+        {
+            question: "Specify which group of microorganisms vaginal gardnerella belongs to:",
+            answers: [
+                { text: "gram-variable coccobacillus forms of microorganisms", correct: true },
+                { text: "gram-negative coccobacilli", correct: false },
+                { text: "gram-variable coccobacilli", correct: false },
+                { text: "gram-positive coccobacterial forms of microorganisms", correct: false },
+                { text: "gram-positive bacillary forms of microorganisms", correct: false },
+            ]
+        },
+        {
+            question: "Specify the localisation of urogenital trichomonads in women:",
+            answers: [
+                { text: "in all genitourinary organs and the ampulla of the rectum", correct: true },
+                { text: "urethra, vagina, vagina, cervix", correct: false },
+                { text: "vagina, cervix, uterus.", correct: false },
+                { text: "urethra, vagina, ampulla of rectum.", correct: false },
+            ]
+        },
+        {
+            question: "Specify the main clinical sign of eye damage in gonorrhea:",
+            answers: [
+                { text: "conjunctivitis", correct: true },
+                { text: "blepharitis", correct: false },
+                { text: "cataract", correct: false },
+                { text: "4 glaucoma", correct: false },
+                { text: "retinal detachment", correct: false },
+            ]
+        },
+        {
+            question: "A 30-year-old woman turned to a venereologist for a preventive examination. Anamnesis: casual sexual intercourse six days ago. Complaints about minor discharge. During a gynecological examination: the external genital organs and vaginal mucosa without signs of inflammation, the internal genital organs without pathology. What research should be assigned to make a diagnosis?",
+            answers: [
+                { text: "PCR", correct: true },
+                { text: "CSR", correct: false },
+                { text: "IEA", correct: false },
+                { text: "SIF", correct: false },
+                { text: "RIF", correct: false },
+            ]
+        },
+        {
+            question: "A 30-year-old woman turned to the polyclinic of the dermatovenerologic dispensary with complaints of moderate, homogeneous, sticky, grayish-whitish vaginal discharge, with an unpleasant smell of “rotten fish”. On examination: the walls of the vagina are moderately hyperemic, covered with grayish-whitish discharge. “Key” cells were found in smears. Diagnosis: Bacterial vaginosis. Which test confirms the diagnosis?",
+            answers: [
+                { text: "Amine", correct: true },
+                { text: "Urease", correct: false },
+                { text: "Salbutomach", correct: false },
+                { text: "Glycemic", correct: false },
+                { text: "Lepromine", correct: false },
+            ]
+        },
+        {
+            question: "A 36-year-old woman turned to a venereologist for a preventive examination. Complaints about discharge, burning. When viewed in mirrors: the cervix is ​​cylindrical, mucous discharge, foamy, gray with an unpleasant odor. When conducting a bimanual study, pathology from the internal genital organs was not detected. According to microscopic examination, “key cells” were found in vaginal smears. Preliminary diagnosis: Bacterial vaginosis. What drug should be prescribed?",
+            answers: [
+                { text: "Clindamycin", correct: true },
+                { text: "Acyclovir", correct: false },
+                { text: "Valacyclovir", correct: false },
+                { text: "Diazolin", correct: false },
+                { text: "Diclofenac", correct: false },
+            ]
+        },
+        {
+            question: "Specify an ineffective treatment regimen for uncomplicated gonorrhoea:",
+            answers: [
+                { text: "kanamycin 2 g orally once a month", correct: true },
+                { text: "ceftriaxone 250 mg intravenously once a day", correct: false },
+                { text: "spectinomycin 2 g once a day/m", correct: false },
+                { text: "cefixime 400 mg once orally", correct: false },
+                { text: "doxycycline 100 mg 2 times a day for 7 days", correct: false },
+            ]
+        },
+        {
+            question: "Specify an ineffective treatment regimen for trichomoniasis:",
+            answers: [
+                { text: "metronidazole 250 mg orally 2 times a day for 14 days", correct: true },
+                { text: "metronidazole 500 mg orally 2 times a day for 7 days", correct: false },
+                { text: "metronidazole 2 g orally once a day", correct: false },
+                { text: "tinidazole 2 g orally once a day", correct: false },
+                { text: "metronidazole 250 mg 4 times a day for 7 days", correct: false },
+            ]
+        },
+        {
+            question: "Specify an ineffective localisation for gonorrhoea testing:",
+            answers: [
+                { text: "from the posterior vaginal vault", correct: true },
+                { text: "urethral secretion", correct: false },
+                { text: "from the cervical canal", correct: false },
+                { text: "from the back of the pharynx", correct: false },
+                { text: "ocular secretions", correct: false },
+            ]
+        },
+        {
+            question: "Specify the drug of choice in the treatment of gonorrhoea:",
+            answers: [
+                { text: "ceftriaxone", correct: true },
+                { text: "penicillin", correct: false },
+                { text: "tetracycline", correct: false },
+                { text: "metronidazole", correct: false },
+                { text: "Erythromycin", correct: false },
+            ]
+        },
+        {
+            question: "Specify the causative agent of urogenital chlamydia",
+            answers: [
+                { text: "Chlamydia trachomatis", correct: true },
+                { text: "Trichomonas vaginalis", correct: false },
+                { text: "Gardnerella vaginalis", correct: false },
+                { text: "gonococcus", correct: false },
+                { text: "Helicobacter pylori", correct: false },
+            ]
+        },
+        {
+            question: "Choose the group of the causative agent chlamydia trachomatis",
+            answers: [
+                { text: "bacteria", correct: true },
+                { text: "viruses", correct: false },
+                { text: "helminths", correct: false },
+                { text: "protozoa", correct: false },
+                { text: "fungi", correct: false },
+            ]
+        },
+        {
+            question: "A 45-year-old woman turned to a dermatovenerologist with complaints of soreness during intercourse, pulling pains in the lower abdomen, frequent painful urination. From the anamnesis: the sexual partner had discharge of a mucopurulent character. Barrier contraception is not used. Objectively: swelling and hyperemia of the mucous membrane of the cervix, mucopurulent discharge from the cervical canal. C. trachomatis was found by PCR diagnostics. Which of the following infections is most commonly associated with this pathogen?",
+            answers: [
+                { text: "Gonorrheal", correct: true },
+                { text: "Trichomonas", correct: false },
+                { text: "Gardnerella", correct: false },
+                { text: "Staphylococcal", correct: false },
+                { text: "Streptococcal", correct: false },
+            ]
+        },
+        {
+            question: "A man, 34 years old, turned to a dermatovenerologist with complaints of scanty mucous discharge from the urethra, pain and burning sensation when urinating. From the anamnesis: has been ill for a week. Objectively: the sponges of the urethra are hyperemic and edematous, mucopurulent discharge. Which of the verified diagnostic methods will make the diagnosis possible?",
+            answers: [
+                { text: "Polymerase chain reaction", correct: true },
+                { text: "Complete blood count", correct: false },
+                { text: "General urine analysis", correct: false },
+                { text: "Bacteriological inoculation method", correct: false },
+                { text: "A complex of serological reactions", correct: false },
+            ]
+        },
+        {
+            question: "Specify the most detectable localization of the chlamydia pathogen in a newborn baby:",
+            answers: [
+                { text: "mucous membrane of the posterior pharyngeal wall", correct: true },
+                { text: "nasal mucosa", correct: false },
+                { text: "external auditory canal", correct: false },
+                { text: "inguinal fold", correct: false },
+                { text: "umbilical cord", correct: false },
+            ]
+        },
+        {
+            question: "Identify which disease is characterized by \"contact\" bleeding during the intermenstrual period in women:",
+            answers: [
+                { text: "urogenital chlamydia", correct: true },
+                { text: "urogenital trichomoniasis", correct: false },
+                { text: "gonorrhea", correct: false },
+                { text: "urogenital candidiasis", correct: false },
+                { text: "bacterial vaginosis", correct: false },
+            ]
+        },
+        {
+            question: "Use the main group of drugs in the treatment of urogenital chlamydia for children under 12 years of age and pregnant women",
+            answers: [
+                { text: "macrolides", correct: true },
+                { text: "tetracyclines", correct: false },
+                { text: "cephalosporins", correct: false },
+                { text: "penicillins", correct: false },
+                { text: "antimalarial", correct: false },
+            ]
+        },
+        {
+            question: "Choose the symptom of Reiter's disease:",
+            answers: [
+                { text: "arthritis", correct: true },
+                { text: "gastritis", correct: false },
+                { text: "myocarditis", correct: false },
+                { text: "pyelonephritis", correct: false },
+                { text: "colitis", correct: false },
+            ]
+        },
+        {
+            question: "Choose the symptom of Reiter's disease:",
+            answers: [
+                { text: "urethritis", correct: true },
+                { text: "gastritis", correct: false },
+                { text: "myocarditis", correct: false },
+                { text: "pyelonephritis", correct: false },
+                { text: "colitis", correct: false },
+            ]
+        },
+        {
+            question: "Specify the group of drugs that is not used in the treatment of Reiter's disease:",
+            answers: [
+                { text: "sulphonamide drugs", correct: true },
+                { text: "detoxification therapy", correct: false },
+                { text: "hyposensitising therapy", correct: false },
+                { text: "antirheumatic drugs", correct: false },
+                { text: "antibacterial drugs", correct: false },
+            ]
+        },
+        {
+            question: "Name which of the following microorganisms that cause sexually transmitted diseases cannot be detected by microscopic examination:",
+            answers: [
+                { text: "mycoplasma genitalis", correct: true },
+                { text: "pale treponema", correct: false },
+                { text: "gardnerella", correct: false },
+                { text: "gonococcus Neisser.", correct: false },
+                { text: "trichomonas vaginalis", correct: false },
+            ]
+        },
+        {
+            question: "Name the most common reason for men with urogenital chlamydia to come to the clinic:",
+            answers: [
+                { text: "chronic urethroprostatitis", correct: true },
+                { text: "acute urethritis", correct: false },
+                { text: "acute prostatitis", correct: false },
+                { text: "acute orchoepididymitis", correct: false },
+                { text: "acute cystitis", correct: false },
+            ]
+        },
+        {
+            question: "Specify the time period for taking urethral material to detect chlamydia:",
+            answers: [
+                { text: "after delayed urination for 3-4 hours", correct: true },
+                { text: "immediately or 10 minutes after urination", correct: false },
+                { text: "after preliminary combined provocation", correct: false },
+                { text: "against the background of purulent discharge", correct: false },
+                { text: "after urethral massage on the bougie", correct: false },
+            ]
+        },
+        {
+            question: "Specify the time period for the first PCR control test for chlamydia after treatment:",
+            answers: [
+                { text: "after 1 month", correct: true },
+                { text: "immediately after the end of antibiotic therapy", correct: false },
+                { text: "after 10-14 days", correct: false },
+                { text: "after 2-3 months", correct: false },
+                { text: "after six months", correct: false },
+            ]
+        },
+        {
+            question: "specify the incorrect biological material for laboratory diagnosis of mycoplasmosis and ureaplasmosis in women:",
+            answers: [
+                { text: "conjunctival secretion", correct: true },
+                { text: "urethral mucosal scraping", correct: false },
+                { text: "cervical mucosal scraping", correct: false },
+                { text: "blood serum", correct: false },
+                { text: "vaginal discharge", correct: false },
+            ]
+        },
+        {
+            question: "Specify the drug for the treatment of chlamydial and ureaplasma urethritis:",
+            answers: [
+                { text: "sumamed", correct: true },
+                { text: "ofloxacin", correct: false },
+                { text: "rovamycin", correct: false },
+                { text: "claforan", correct: false },
+                { text: "amoxicillin", correct: false },
+            ]
+        },
+        {
+            question: "Choose the causative agent of urogenital candidiasis:",
+            answers: [
+                { text: "candida albicans", correct: true },
+                { text: "trichophyton rubrum", correct: false },
+                { text: "microsporum", correct: false },
+                { text: "Malasezia furfur", correct: false },
+                { text: "Epidermophyton", correct: false },
+            ]
+        },
+        {
+            question: "A 34-year-old man consulted a venereologist at a private medical center with complaints of itching and burning of the foreskin. She has been ill for 1.5 months. From the anamnesis: over the past year he has been treated at a tuberculosis clinic for extrapulmonary tuberculosis and is registered. Objectively: whitish coating on the glans penis and foreskin, curd-like discharge. Which of the following diagnoses is most likely?",
+            answers: [
+                { text: "Candida balanoposthitis", correct: true },
+                { text: "Tuberculous balanitis", correct: false },
+                { text: "Bacterial balanitis", correct: false },
+                { text: "Tuberculous balanoposthitis", correct: false },
+                { text: "Gonorrheal balanitis", correct: false },
+            ]
+        },
+        {
+            question: "A 47-year-old man consulted a dermatovenerologist with complaints of rashes in the genital area, burning, and soreness. Similar rashes have appeared before. Denies extramarital sex. Objectively: on the mucous membrane of the labia majora, there are grouped vesicles with serous contents and erosions with polycyclic outlines. Regional lymph nodes are not enlarged. No laboratory tests have been carried out. Which of the following diagnoses is most likely?",
+            answers: [
+                { text: "Genital herpes", correct: true },
+                { text: "Bullous pemphigoid", correct: false },
+                { text: "Chancroid", correct: false },
+                { text: "True pemphigus", correct: false },
+                { text: "Urogenital candidiasis", correct: false },
+            ]
+        },
+        {
+            question: "Specify where the inflammatory process is localised in urogenital candidiasis",
+            answers: [
+                { text: "1) upper layers of the vaginal epithelium", correct: true },
+                { text: "2) upper layers of the urethral epithelium;", correct: false },
+                { text: "3) deep layers of the vaginal epithelium;", correct: false },
+                { text: "4) deep layers of the urethral epithelium.", correct: false },
+                { text: "5) upper and deep layers of the vaginal epithelium", correct: false },
+            ]
+        },
+        {
+            question: "Name the diseases caused by urogenital candidiasis in women?",
+            answers: [
+                { text: "2) vulvovaginitis", correct: true },
+                { text: "1) vaginosis;", correct: false },
+                { text: "3) urethritis;", correct: false },
+                { text: "4) salpingitis", correct: false },
+                { text: "5) endometriosis.", correct: false },
+            ]
+        },
+        {
+            question: "Specify which diseases are caused by urogenital candidiasis in men?",
+            answers: [
+                { text: "4) urethritis", correct: true },
+                { text: "1) orchitis", correct: false },
+                { text: "2) epididymitis", correct: false },
+                { text: "3) prostatitis;", correct: false },
+                { text: "5) cystitis.", correct: false },
+            ]
+        },
+        {
+            question: "Specify the group of causative agents of genital herpes",
+            answers: [
+                { text: "viruses", correct: true },
+                { text: "bacteria", correct: false },
+                { text: "protozoa", correct: false },
+                { text: "helminths", correct: false },
+                { text: "fungi", correct: false },
+            ]
+        },
+        {
+            question: "Specify the incorrect method for laboratory diagnosis of herpetic infection:",
+            answers: [
+                { text: "IFA", correct: true },
+                { text: "microscopy", correct: false },
+                { text: "culture method", correct: false },
+                { text: "PIF", correct: false },
+                { text: "PCR", correct: false },
+            ]
+        },
+        {
+            question: "A 25-year-old man came to see a dermatologist with complaints of painful rashes. During the last 2 years he notes the appearance of manifestations for the eighth time. Objectively: on the head of the penis - grouped vesicles the size of a millet grain with serous content. On the inner sheet of the preputial sac - erosive surface with clear edges, soft on palpation. Which of the listed diseases is characterised by the above picture?",
+            answers: [
+                { text: "genital herpes", correct: true },
+                { text: "primary syphilis", correct: false },
+                { text: "herpes zoster", correct: false },
+                { text: "chancriform pyoderma", correct: false },
+                { text: "Scabies", correct: false },
+            ]
+        },
+        {
+            question: "Patient 37 years old, applied to a venereologist complaining of soreness, rashes on the head of the penis. From anamnesis: he has been ill for 10 days. Objectively: on the head of the penis there are vesicles with serous content on a swollen, hyperaemic background, polycyclic erosions. Diagnosis: Genital herpes. Choose a remedy for external therapy:",
+            answers: [
+                { text: "Poultice", correct: true },
+                { text: "Ointment", correct: false },
+                { text: "Cream", correct: false },
+                { text: "Paste", correct: false },
+                { text: "Lacquer", correct: false },
+            ]
+        },
+        {
+            question: "A 45-year-old patient visited a venereologist with complaints of rashes, itching of genitals. From the anamnesis: he had been ill for 5 days, earlier he had the same rashes, this was the 6th relapse within a year. He was treated at the place of residence. Objectively: on the skin of the venous furrow of the penis, grouped vesicles on a hyperaemic base, erosions with festooned edges. Diagnosis: Genital herpes. Recurrent form. Which of the following vaccines is used to prevent subsequent recurrences?",
+            answers: [
+                { text: "Antiviral", correct: true },
+                { text: "Anti-staphylococcal", correct: false },
+                { text: "Anti-Tuberculosis", correct: false },
+                { text: "Anti-tetanus", correct: false },
+                { text: "Antitrichomonadal", correct: false },
+            ]
+        },
+        {
+            question: "Specify the dosage of Fluconazole in the treatment of acute urogenital candidiasis?",
+            answers: [
+                { text: "150 mg once", correct: true },
+                { text: "150 mg once for 3 days;", correct: false },
+                { text: "250 mg once;", correct: false },
+                { text: "250 mg once for 3 days", correct: false },
+                { text: "50mg once", correct: false },
+            ]
+        },
+        {
+            question: "Name the drugs used in the maintenance therapy of urogenital candidiasis?",
+            answers: [
+                { text: "Clotrimazole", correct: true },
+                { text: "Josamycin;", correct: false },
+                { text: "Itraconazole;", correct: false },
+                { text: "Amoxicillin", correct: false },
+                { text: "Ofloxacin.", correct: false },
+            ]
+        },
+        {
+            question: "Specify the tactics of treatment of urogenital candidiasis in pregnant women in the 1st trimester?",
+            answers: [
+                { text: "Natamycin vaginal suppositories 100 mg once a day for 6 days.", correct: true },
+                { text: "Clotrimazole vaginal tablet 100 mg once a day before bedtime for 10 days;", correct: false },
+                { text: "Clotrimazole vaginal tablet 100 mg once daily before bedtime for 7 days;", correct: false },
+                { text: "Natamycin vaginal suppositories 100 mg once daily for 10 days;", correct: false },
+                { text: "Nystatin vaginal suppositories 1 time per day for 6 days", correct: false },
+            ]
+        },
+        {
+            question: "Specify the tactics of treatment of urogenital candidiasis in pregnant women in the 2nd trimester?",
+            answers: [
+                { text: "Natamycin vaginal suppositories 100 mg once a day for 6 days.", correct: true },
+                { text: "Clotrimazole vaginal tablet 100 mg once a day before bedtime for 10 days;", correct: false },
+                { text: "Clotrimazole vaginal tablet 100 mg once daily before bedtime for 7 days;", correct: false },
+                { text: "Natamycin vaginal suppositories 100 mg once daily for 10 days;", correct: false },
+                { text: "Nystatin vaginal suppositories 1 time per day for 6 days", correct: false },
+            ]
+        },
+        {
+            question: "Name the criteria for assessing the quality of medical care for patients with urogenital candidiasis?",
+            answers: [
+                { text: "microscopic examination", correct: true },
+                { text: "general blood analysis", correct: false },
+                { text: "ultrasound examination of pelvic organs", correct: false },
+                { text: "prescription of immunomodulatory therapy;", correct: false },
+                { text: "instrumental examination;", correct: false },
+            ]
+        },
+        {
+            question: "Specify a preventive measure aimed at actively identifying hidden sources of infection of sexually transmitted diseases:",
+            answers: [
+                { text: "medical examinations", correct: true },
+                { text: "treatment of patients", correct: false },
+                { text: "examination of patients", correct: false },
+                { text: "vaccination", correct: false },
+                { text: "sanitary educational work", correct: false },
+            ]
+        },
+        {
+            question: "Specify the cause of the \"lower abdominal pain\" syndrome:",
+            answers: [
+                { text: "chlamydia", correct: true },
+                { text: "soft chancre", correct: false },
+                { text: "syphilis", correct: false },
+                { text: "donovanosis", correct: false },
+                { text: "leprosy", correct: false },
+            ]
+        },
+        {
+            question: "Specify what does not cause scrotal oedema syndrome:",
+            answers: [
+                { text: "genital herpes", correct: true },
+                { text: "gonorrhoea", correct: false },
+                { text: "chlamydia", correct: false },
+                { text: "trauma", correct: false },
+                { text: "mycoplasmosis", correct: false },
+            ]
+        },
+        {
+            question: "Specify the causative agent of venereal lymphogranuloma:",
+            answers: [
+                { text: "Chlamydia trachomatis (serotypes L1, L2, L3)", correct: true },
+                { text: "Streptobacillus Ducreyi.", correct: false },
+                { text: "Donovan's corpuscles", correct: false },
+                { text: "pale treponema", correct: false },
+                { text: "candida", correct: false },
+            ]
+        },
+        {
+            question: "Specify the social factors that do not influence STD transmission:",
+            answers: [
+                { text: "gender, age", correct: true },
+                { text: "refusal of personal protective equipment (condom, etc.)", correct: false },
+                { text: "untimely initiation of STI treatment", correct: false },
+                { text: "interruption of treatment", correct: false },
+                { text: "sexual partners are not involved in treatment", correct: false },
+            ]
+        },
+        {
+            question: "Specify the earliest time for detection of HIV antibodies:",
+            answers: [
+                { text: "two weeks", correct: true },
+                { text: "one month", correct: false },
+                { text: "two months", correct: false },
+                { text: "three weeks", correct: false },
+                { text: "one week", correct: false },
+            ]
+        },
+        ];
+
+        // Quiz state
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let isExamMode = false;
+        let isDarkMode = false;
+        let isAnswerMode = false;
+        let isQuestionShuffleMode = false; // NEW: Question shuffle mode for non-exam
+        let isQuestionShuffleEnabled = false; // NEW: Question shuffle for exam mode
+        let timerInterval = null;
+        let timerActive = false;
+        let timerExpired = false;
+        let totalQuestions = questions.length;
+        let selectedQuestionCount = questions.length;
+        let examGridExpanded = true;
+        let originalQuestionOrder = []; // NEW: Store original question order
+        let shuffledQuestionOrder = []; // NEW: Store shuffled question order
+        let currentQuestionOrder = []; // NEW: Current active question order
+
+        // NEW: Shuffle array function
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // NEW: Shuffle options for a question
+        function shuffleQuestionOptions(question) {
+            const shuffledAnswers = shuffleArray(question.answers);
+            return {
+                ...question,
+                answers: shuffledAnswers
+            };
+        }
+
+        // Initialize quiz
+        function initializeQuiz() {
+            // Initialize question orders
+            originalQuestionOrder = Array.from({length: questions.length}, (_, i) => i);
+            shuffledQuestionOrder = shuffleArray(originalQuestionOrder);
+            currentQuestionOrder = [...originalQuestionOrder];
+            
+            userAnswers = new Array(questions.length).fill(null);
+            loadQuestion();
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // Load current question with option shuffling
+        function loadQuestion() {
+            const questionIndex = currentQuestionOrder[currentQuestionIndex];
+            const originalQuestion = questions[questionIndex];
+            
+            // NEW: Always shuffle options when loading a question
+            const question = shuffleQuestionOptions(originalQuestion);
+            
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1}`;
+            document.getElementById('questionCounter').textContent = `${currentQuestionIndex + 1} / ${selectedQuestionCount}`;
+            document.getElementById('questionText').textContent = question.question;
+
+            const answersContainer = document.getElementById('answersContainer');
+            answersContainer.innerHTML = '';
+
+            question.answers.forEach((answer, index) => {
+                const answerDiv = document.createElement('div');
+                answerDiv.className = 'answer-option';
+                answerDiv.onclick = () => selectAnswer(index, answer.correct);
+
+                const optionLabel = document.createElement('div');
+                optionLabel.className = 'option-label';
+                optionLabel.textContent = String.fromCharCode(65 + index); // A, B, C, D
+
+                const optionText = document.createElement('div');
+                optionText.className = 'option-text';
+                optionText.textContent = answer.text;
+
+                answerDiv.appendChild(optionLabel);
+                answerDiv.appendChild(optionText);
+                answersContainer.appendChild(answerDiv);
+
+                // Restore previous selection
+                if (userAnswers[questionIndex] !== null && userAnswers[questionIndex].selectedIndex === index) {
+                    answerDiv.classList.add('selected');
+                }
+
+                // Apply answer mode styling if active and not in exam mode
+                if (isAnswerMode && !isExamMode) {
+                    if (answer.correct) {
+                        answerDiv.classList.add('correct-answer-mode');
+                    } else {
+                        answerDiv.classList.add('other-answer-mode');
+                    }
+                }
+
+                // Apply timer expired styling
+                if (timerExpired) {
+                    answerDiv.classList.add('timer-expired');
+                }
+            });
+
+            updateQuestionGrid();
+            updateMobileQuestionGrid();
+            updateExamQuestionGrid();
+        }
+
+        // Select answer with correct answer tracking
+        function selectAnswer(answerIndex, isCorrect) {
+            if (timerExpired) return;
+
+            const questionIndex = currentQuestionOrder[currentQuestionIndex];
+            const answerOptions = document.querySelectorAll('.answer-option');
+            
+            // In exam mode, ensure only one option can be selected (radio button behavior)
+            if (isExamMode) {
+                answerOptions.forEach(option => option.classList.remove('selected'));
+            }
+
+            // Store the answer with correctness info
+            userAnswers[questionIndex] = {
+                selectedIndex: answerIndex,
+                isCorrect: isCorrect
+            };
+
+            // Update visual selection
+            answerOptions[answerIndex].classList.add('selected');
+
+            // In non-exam mode, show immediate feedback
+            if (!isExamMode) {
+                const originalQuestion = questions[questionIndex];
+                answerOptions.forEach((option, index) => {
+                    option.classList.remove('correct', 'incorrect');
+                    // Find the correct answer in the shuffled options
+                    const currentAnswers = Array.from(document.querySelectorAll('.option-text')).map(el => el.textContent);
+                    const correctAnswerText = originalQuestion.answers.find(a => a.correct).text;
+                    const correctIndex = currentAnswers.indexOf(correctAnswerText);
+                    
+                    if (index === correctIndex) {
+                        option.classList.add('correct');
+                    } else if (index === answerIndex) {
+                        option.classList.add('incorrect');
+                    }
+                    option.classList.add('disabled');
+                });
+            }
+
+            updateQuestionGrid();
+            updateMobileQuestionGrid();
+            updateExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // Navigation functions
+        function nextQuestion() {
+            if (currentQuestionIndex < selectedQuestionCount - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function jumpToQuestion(questionIndex) {
+            if (questionIndex < selectedQuestionCount) {
+                currentQuestionIndex = questionIndex;
+                loadQuestion();
+                updateNavigationButtons();
+            }
+        }
+
+        function jumpToQuestionNumber() {
+            const input = document.getElementById('jumpInput');
+            const questionNumber = parseInt(input.value);
+            
+            if (questionNumber >= 1 && questionNumber <= selectedQuestionCount) {
+                jumpToQuestion(questionNumber - 1);
+                input.value = '';
+            } else {
+                alert(`Please enter a number between 1 and ${selectedQuestionCount}`);
+            }
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const finishBtn = document.getElementById('finishBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === selectedQuestionCount - 1) {
+                nextBtn.style.display = 'none';
+                if (isExamMode) {
+                    submitBtn.style.display = 'inline-block';
+                    finishBtn.style.display = 'none';
+                } else {
+                    finishBtn.style.display = 'inline-block';
+                    submitBtn.style.display = 'none';
+                }
+            } else {
+                nextBtn.style.display = 'inline-block';
+                finishBtn.style.display = 'none';
+                submitBtn.style.display = 'none';
+            }
+
+            // Show submit button in exam mode for instant results
+            if (isExamMode && currentQuestionIndex < selectedQuestionCount - 1) {
+                submitBtn.style.display = 'inline-block';
+            }
+        }
+
+        // Question grid functions
+        function createQuestionGrid() {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function createMobileQuestionGrid() {
+            const grid = document.getElementById('mobileQuestionGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function createExamQuestionGrid() {
+            const grid = document.getElementById('examGridContainer');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < selectedQuestionCount; i++) {
+                const gridItem = document.createElement('div');
+                gridItem.className = 'exam-grid-item';
+                gridItem.textContent = i + 1;
+                gridItem.onclick = () => jumpToQuestion(i);
+                grid.appendChild(gridItem);
+            }
+        }
+
+        function updateQuestionGrid() {
+            const gridItems = document.querySelectorAll('#questionGrid .grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered', 'correct', 'incorrect');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    if (isExamMode) {
+                        item.classList.add('answered');
+                    } else {
+                        // NEW: Check correctness for normal mode
+                        if (userAnswers[questionIndex].isCorrect) {
+                            item.classList.add('correct');
+                        } else {
+                            item.classList.add('incorrect');
+                        }
+                    }
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        function updateMobileQuestionGrid() {
+            const gridItems = document.querySelectorAll('#mobileQuestionGrid .grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered', 'correct', 'incorrect');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    if (isExamMode) {
+                        item.classList.add('answered');
+                    } else {
+                        // NEW: Check correctness for normal mode
+                        if (userAnswers[questionIndex].isCorrect) {
+                            item.classList.add('correct');
+                        } else {
+                            item.classList.add('incorrect');
+                        }
+                    }
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        function updateExamQuestionGrid() {
+            const gridItems = document.querySelectorAll('#examGridContainer .exam-grid-item');
+            gridItems.forEach((item, index) => {
+                item.classList.remove('current', 'answered', 'unanswered');
+                
+                const questionIndex = currentQuestionOrder[index];
+                if (index === currentQuestionIndex) {
+                    item.classList.add('current');
+                } else if (userAnswers[questionIndex] !== null) {
+                    item.classList.add('answered');
+                } else {
+                    item.classList.add('unanswered');
+                }
+            });
+        }
+
+        // Mobile dropdown functions
+        function toggleMobileDropdown() {
+            const content = document.getElementById('dropdownContent');
+            const arrow = document.getElementById('dropdownArrow');
+            
+            content.classList.toggle('expanded');
+            arrow.classList.toggle('expanded');
+        }
+
+        // Exam grid toggle functions
+        function toggleExamGrid() {
+            const container = document.getElementById('examGridContainer');
+            const toggle = document.getElementById('examGridToggle');
+            
+            examGridExpanded = !examGridExpanded;
+            
+            if (examGridExpanded) {
+                container.classList.remove('collapsed');
+                toggle.textContent = 'Collapse';
+            } else {
+                container.classList.add('collapsed');
+                toggle.textContent = 'Expand';
+            }
+        }
+
+        // Mode toggle functions
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            const btn = document.getElementById('darkModeBtn');
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                btn.classList.add('active');
+                btn.textContent = '☀️ Light Mode';
+            } else {
+                document.body.classList.remove('dark-mode');
+                btn.classList.remove('active');
+                btn.textContent = '🌙 Dark Mode';
+            }
+        }
+
+        function toggleAnswerMode() {
+            isAnswerMode = !isAnswerMode;
+            const btn = document.getElementById('answerModeBtn');
+            
+            if (isAnswerMode) {
+                btn.classList.add('active');
+                btn.textContent = '🔒 Hide Answers';
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '💡 Answer Mode';
+            }
+            
+            loadQuestion(); // Reload to apply answer mode styling
+        }
+
+        // NEW: Question shuffle mode for non-exam mode
+        function toggleQuestionShuffleMode() {
+            isQuestionShuffleMode = !isQuestionShuffleMode;
+            const btn = document.getElementById('questionShuffleModeBtn');
+            
+            if (isQuestionShuffleMode) {
+                btn.classList.add('active');
+                btn.textContent = '🔀 Shuffle: ON';
+                currentQuestionOrder = [...shuffledQuestionOrder];
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = '🔀 Shuffle Questions';
+                currentQuestionOrder = [...originalQuestionOrder];
+            }
+            
+            // Reset to first question and reload
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // NEW: Question shuffle toggle for exam mode
+        function toggleQuestionShuffle() {
+            isQuestionShuffleEnabled = !isQuestionShuffleEnabled;
+            const btn = document.getElementById('shuffleToggleBtn');
+            const settings = document.querySelector('.question-shuffle-settings');
+            const display = document.getElementById('questionShuffleDisplay');
+            const displayText = document.getElementById('shuffleDisplayText');
+            const resetBtn = document.getElementById('shuffleResetBtn');
+            
+            if (isQuestionShuffleEnabled) {
+                btn.classList.add('active');
+                btn.textContent = 'Enabled';
+                settings.classList.add('hidden');
+                display.classList.add('active');
+                displayText.textContent = 'Shuffle: ON';
+                resetBtn.classList.add('visible');
+                
+                // Apply shuffle
+                currentQuestionOrder = [...shuffledQuestionOrder];
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = 'Enable';
+                settings.classList.remove('hidden');
+                display.classList.remove('active');
+                displayText.textContent = 'Shuffle: Off';
+                resetBtn.classList.remove('visible');
+                
+                // Restore original order
+                currentQuestionOrder = [...originalQuestionOrder];
+            }
+            
+            // Reset to first question and reload
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        // NEW: Reset question shuffle
+        function resetQuestionShuffle() {
+            isQuestionShuffleEnabled = false;
+            const btn = document.getElementById('shuffleToggleBtn');
+            const settings = document.querySelector('.question-shuffle-settings');
+            const display = document.getElementById('questionShuffleDisplay');
+            const displayText = document.getElementById('shuffleDisplayText');
+            const resetBtn = document.getElementById('shuffleResetBtn');
+            
+            btn.classList.remove('active');
+            btn.textContent = 'Enable';
+            settings.classList.remove('hidden');
+            display.classList.remove('active');
+            displayText.textContent = 'Shuffle: Off';
+            resetBtn.classList.remove('visible');
+            
+            // Restore original order
+            currentQuestionOrder = [...originalQuestionOrder];
+            currentQuestionIndex = 0;
+            loadQuestion();
+            createExamQuestionGrid();
+            updateNavigationButtons();
+        }
+
+        function toggleExamMode() {
+            isExamMode = !isExamMode;
+            const btn = document.getElementById('examModeBtn');
+            const exitBtn = document.getElementById('exitBtnText');
+            const title = document.querySelector('.title');
+            
+            if (isExamMode) {
+                document.body.classList.add('exam-mode');
+                btn.classList.add('active');
+                btn.textContent = '📝 Exit Exam Mode';
+                exitBtn.textContent = 'Exit Exam Mode';
+                title.textContent = 'EXAM MODE';
+                
+                // Reset all answers and reload
+                userAnswers = new Array(questions.length).fill(null);
+                currentQuestionIndex = 0;
+                loadQuestion();
+                updateNavigationButtons();
+            } else {
+                document.body.classList.remove('exam-mode');
+                btn.classList.remove('active');
+                btn.textContent = '🎓 Simulate Exam Mode';
+                exitBtn.textContent = 'Exit';
+                title.textContent = 'Enhanced Quiz Application';
+                
+                loadQuestion(); // Reload to remove exam mode styling
+            }
+        }
+
+        // NEW: Enhanced question count functions
+        function setQuestionCount() {
+            const input = document.getElementById('questionCountInput');
+            const newCount = parseInt(input.value) || questions.length;
+            
+            if (newCount < 1 || newCount > questions.length) {
+                alert(`Please enter a number between 1 and ${questions.length}`);
+                input.value = selectedQuestionCount;
+                return;
+            }
+            
+            selectedQuestionCount = newCount;
+            
+            // Hide settings and show display
+            const settings = document.querySelector('.question-count-settings');
+            const display = document.getElementById('questionCountDisplay');
+            const displayText = document.getElementById('countDisplayText');
+            const resetBtn = document.getElementById('countResetDisplayBtn');
+            
+            settings.classList.add('hidden');
+            displayText.textContent = `${selectedQuestionCount} / ${questions.length}`;
+            resetBtn.classList.add('visible');
+            
+            // Reset quiz state
+            userAnswers = new Array(questions.length).fill(null);
+            currentQuestionIndex = 0;
+            
+            // Update UI
+            document.getElementById('questionCounter').textContent = `1 / ${selectedQuestionCount}`;
+            document.getElementById('jumpInput').max = selectedQuestionCount;
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            loadQuestion();
+            updateNavigationButtons();
+        }
+
+        // NEW: Reset question count
+        function resetQuestionCount() {
+            selectedQuestionCount = questions.length;
+            
+            // Show settings and hide display
+            const settings = document.querySelector('.question-count-settings');
+            const display = document.getElementById('questionCountDisplay');
+            const displayText = document.getElementById('countDisplayText');
+            const resetBtn = document.getElementById('countResetDisplayBtn');
+            const input = document.getElementById('questionCountInput');
+            
+            settings.classList.remove('hidden');
+            displayText.textContent = `${questions.length} / ${questions.length}`;
+            resetBtn.classList.remove('visible');
+            input.value = questions.length;
+            
+            // Reset quiz state
+            userAnswers = new Array(questions.length).fill(null);
+            currentQuestionIndex = 0;
+            
+            // Update UI
+            document.getElementById('questionCounter').textContent = `1 / ${selectedQuestionCount}`;
+            document.getElementById('jumpInput').max = selectedQuestionCount;
+            createQuestionGrid();
+            createMobileQuestionGrid();
+            createExamQuestionGrid();
+            loadQuestion();
+            updateNavigationButtons();
+        }
+
+        // Timer functions
+        function startTimer() {
+            const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
+            const seconds = parseInt(document.getElementById('secondsInput').value) || 0;
+            const totalSeconds = minutes * 60 + seconds;
+
+            if (totalSeconds <= 0) {
+                alert('Please set a valid time');
+                return;
+            }
+
+            timerActive = true;
+            timerExpired = false;
+            let remainingTime = totalSeconds;
+
+            const timer = document.getElementById('timer');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerResetBtn = document.getElementById('timerResetBtn');
+            const timerSettings = document.querySelector('.timer-settings');
+
+            timer.classList.add('active');
+            timerResetBtn.classList.add('visible');
+            timerSettings.classList.add('hidden');
+
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    timerExpired = true;
+                    timerActive = false;
+                    timer.classList.remove('active');
+                    timerDisplay.textContent = 'Time expired!';
+                    
+                    // Show timer expired overlay
+                    document.getElementById('timerExpiredOverlay').classList.add('visible');
+                    document.getElementById('quizSection').classList.add('timer-expired');
+                    
+                    // Auto-submit quiz
+                    setTimeout(() => {
+                        finishQuiz();
+                    }, 3000);
+                }
+
+                remainingTime--;
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerActive = false;
+            timerExpired = false;
+
+            const timer = document.getElementById('timer');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const timerResetBtn = document.getElementById('timerResetBtn');
+            const timerSettings = document.querySelector('.timer-settings');
+
+            timer.classList.remove('active');
+            timerResetBtn.classList.remove('visible');
+            timerSettings.classList.remove('hidden');
+            timerDisplay.textContent = 'No timer set';
+
+            document.getElementById('timerExpiredOverlay').classList.remove('visible');
+            document.getElementById('quizSection').classList.remove('timer-expired');
+
+            loadQuestion(); // Reload to remove timer expired styling
+        }
+
+        function hideTimerExpiredOverlay() {
+            document.getElementById('timerExpiredOverlay').classList.remove('visible');
+        }
+
+        // Quiz completion
+        function finishQuiz() {
+            const answeredQuestions = userAnswers.slice(0, selectedQuestionCount).filter(answer => answer !== null).length;
+            const correctAnswers = userAnswers.slice(0, selectedQuestionCount).reduce((count, answer, index) => {
+                if (answer !== null && answer.isCorrect) {
+                    return count + 1;
+                }
+                return count;
+            }, 0);
+
+            const percentage = Math.round((correctAnswers / selectedQuestionCount) * 100);
+            const passed = percentage >= 60;
+
+            if (isExamMode) {
+                // Show result overlay for exam mode
+                const resultOverlay = document.getElementById('resultOverlay');
+                const resultMessage = document.getElementById('resultMessage');
+                const resultTitle = document.getElementById('resultTitle');
+                const resultStats = document.getElementById('resultStats');
+
+                resultTitle.textContent = passed ? '🎉 PASSED!' : '❌ FAILED';
+                resultTitle.className = `result-title ${passed ? 'passed' : 'failed'}`;
+                resultMessage.className = `result-message ${passed ? 'passed' : 'failed'}`;
+
+                resultStats.innerHTML = `
+                    <strong>Questions Answered:</strong> ${answeredQuestions} / ${selectedQuestionCount}<br>
+                    <strong>Correct Answers:</strong> ${correctAnswers} / ${selectedQuestionCount}<br>
+                    <strong>Percentage:</strong> ${percentage}%<br><br>
+                    <em>${passed ? 'Congratulations! You passed the exam.' : 'You need 60% to pass. Better luck next time!'}</em>
+                `;
+
+                resultOverlay.classList.add('visible');
+            } else {
+                // Show alert for normal mode
+                let message = `Quiz Completed!\n\n`;
+                message += `Questions Answered: ${answeredQuestions} / ${selectedQuestionCount}\n`;
+                message += `Correct Answers: ${correctAnswers} / ${selectedQuestionCount}\n`;
+                message += `Percentage: ${percentage}%`;
+
+                alert(message);
+            }
+        }
+
+        function hideResultOverlay() {
+            document.getElementById('resultOverlay').classList.remove('visible');
+        }
+
+        function exitQuiz() {
+            if (isExamMode) {
+                toggleExamMode();
+            } else {
+                if (confirm('Are you sure you want to exit the quiz?')) {
+                    window.close();
+                }
+            }
+        }
+
+        // Initialize the quiz when page loads
+        document.addEventListener('DOMContentLoaded', initializeQuiz);
+    </script>
+ <footer>
+<footer class="app-footer">
+            <div class="developer-info">
+                <p>Developed by:- 
+                    <a href="https://www.instagram.com/mayyyank" class="ig-link" target="_blank">
+                        IG Handle (for queries)
+                    </a>
+                </p>
+            </div>
+            
+            <p class="disclaimer">
+                DISCLAIMER: The following questions are sourced from the question bank and are provided for your reference. Please note that this website holds no official affiliation with the university, and I cannot guarantee the absolute accuracy of the content. Wishing you the very best in your academic journey! 😊
+            </p>
+        </footer>
+
+        <style>
+            .app-footer {
+                background: var(--card-bg);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-radius: var(--radius);
+                padding: 24px;
+                box-shadow: var(--shadow);
+                border: 1px solid rgba(255,255,255,0.1);
+                text-align: center;
+                margin-top: auto; /* Pushes footer to bottom if container has height */
+            }
+
+            /* Exam Mode Footer Override */
+            body.exam-mode .app-footer {
+                background: transparent;
+                box-shadow: none;
+                border: none;
+                border-top: 1px solid var(--border-color);
+                border-radius: 0;
+            }
+
+            .developer-info {
+                font-weight: 600;
+                margin-bottom: 12px;
+                font-size: 1rem;
+                color: var(--text-main);
+            }
+
+            .ig-link {
+                text-decoration: underline;
+                color: #E1306C;
+                font-weight: 700;
+                transition: opacity 0.2s;
+            }
+            
+            .ig-link:hover {
+                opacity: 0.8;
+            }
+
+            .disclaimer {
+                font-size: 0.85rem;
+                color: var(--text-secondary);
+                line-height: 1.6;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+
+            /* Mobile adjustment */
+            @media (max-width: 768px) {
+                .app-footer {
+                    padding: 20px 15px;
+                }
+                .disclaimer {
+                    font-size: 0.75rem;
+                }
+            }
+        </style>
+</footer>
+</body>
+</html>
